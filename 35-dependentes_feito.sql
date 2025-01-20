@@ -1,8 +1,7 @@
-ROLLBACK;
+
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
-CALL bethadba.pg_setoption('wait_for_commit','on');
+CALL bethadba.pg_setoption('wait_for_commit', 'on');
 CALL bethadba.pg_habilitartriggers('off');
-call bethadba.pg_setoption('fire_triggers','off');
 COMMIT;
 --------------------------------------------------
 -- 31) Dependentes
@@ -18,10 +17,9 @@ begin
 	declare w_i_dependentes integer;
 	declare w_grau char(1);
 	declare w_dt_casamento date;
-    alter table tecbth_delivery.gp001_dependente add  i_dependentes integer; 
 	ooLoop: for oo as cnv_dependentes dynamic scroll cursor for 
 			
-select 1 as w_i_entidades,d.cdPessoa as w_CdPessoa,d.cdDependente as w_cdDependente,d.CdPessoaDependente as w_CdPessoaDependente,d.cdGrauDependencia as w_CdGrauDependencia,
+select distinct 1 as w_i_entidades,d.cdPessoa as w_CdPessoa,d.cdDependente as w_cdDependente,d.CdPessoaDependente as w_CdPessoaDependente,d.cdGrauDependencia as w_CdGrauDependencia,
 				   d.CdMotivoInicioRelacao as w_CdMotivoInicioRelacao,date(d.DtInicioRelacao) as w_DtInicioRelacao,dtsuspensao as dt_final
 			FROM tecbth_delivery.GP001_PESSOA p
 INNER JOIN tecbth_delivery.GP001_DEPENDENTE d ON d.cdPessoaDependente = p.CdPessoa
@@ -29,8 +27,6 @@ INNER JOIN tecbth_delivery.gp001_FUNCIONARIO f ON f.CdPessoa = d.CdPessoa
 LEFT JOIN tecbth_delivery.gp001_DEPENDENTEVERBA dv ON f.cdMatricula = dv.cdMatricula
 LEFT JOIN tecbth_delivery.gp001_VERBA v ON dv.CdVerba = v.CdVerba
 WHERE d.CdPessoa IS NOT NULL
-AND f.CdDesligamento = 0
-AND f.NrAgenciaContaCorrente <> 0
 AND d.CdDependente = dv.CdDependente
 			--and d.cdPessoa =14
 			order by 1,2 asc
@@ -66,6 +62,8 @@ AND d.CdDependente = dv.CdDependente
 			set w_grau=6
 		elseif w_cdGrauDependencia = 11 then
 			set w_grau=7
+		elseif w_cdGrauDependencia = 21 then 
+			set w_grau = 1
 		else
 			set w_grau=9
 		end if;
@@ -84,10 +82,7 @@ AND d.CdDependente = dv.CdDependente
 				values(w_i_pessoas,w_i_dependentes,w_grau,w_dt_casamento,w_DtInicioRelacao,dt_final) 
 			end if
 		end if;
-       update tecbth_delivery.gp001_dependente  
-          set i_dependentes = w_i_dependentes 
-        where cdPessoa= w_CdPessoa 
-          and cdDependente = w_cdDependente 
-          and CdPessoaDependente= w_CdPessoaDependente
 	end for;
 end;
+
+
