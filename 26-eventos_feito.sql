@@ -1,8 +1,7 @@
-if  exists (select 1 from sys.sysprocedure where creator = (select user_id from sys.sysuserperms where user_name = current user) and proc_name = 'cnv_evento_aux') then
-	drop procedure cnv_evento_aux;
-end if
-;
-begin
+-- Rodar em ordem (Parte 1 até a Parte 9 + eventos_prop_adic)
+
+-- Parte 1 BTHSC-134414
+begin 
 	declare w_i_eventos integer;
 	declare w_tipo_pd char(1);
 	declare w_unidade char(15);
@@ -74,10 +73,7 @@ if exists (select 1 from sys.sysprocedure where creator = (select user_id from s
 end if
 ;
 
-create procedure tecbth_delivery.cnv_evento_atu()
-begin
-	
-end
+
 ;
 
 call tecbth_delivery.cnv_evento_atu()
@@ -104,33 +100,237 @@ begin
        --if  w_i_eventos >= 400 and w_tipo_pd in('P','D') then
 		message 'Eve.: '||w_i_eventos||' Nom.: '||w_nome||' Tip.: '||w_tipo_pd to client;
 		insert into bethadba.eventos(i_eventos,nome,tipo_pd,taxa,unidade,sai_rais,compoe_liq,compoe_hmes,digitou_form,classif_evento,cods_conversao,desativado,seq_impressao,
-									codigo_tce,deduc_fundo_financ, natureza, i_atos, envia_fly_transparencia, montar_base_fgts_integral_afast, enviar_esocial)on existing skip
-		values (w_i_eventos,w_nome,w_tipo_pd,w_taxa,w_unidade,w_sai_rais,w_compoe_liq,w_compoe_hmes,w_digitou_form,w_classif_evento,null,'N',null,w_i_eventos,'N', null, null, 'N', 'N', 'S'); 
+									codigo_tce,caracteristica, deduc_fundo_financ, natureza, i_atos, envia_fly_transparencia, montar_base_fgts_integral_afast, enviar_esocial)on existing skip
+		values (w_i_eventos,w_nome,w_tipo_pd,w_taxa,w_unidade,w_sai_rais,w_compoe_liq,w_compoe_hmes,w_digitou_form,w_classif_evento,null,'N',null,w_i_eventos, 'F' ,'N', null, null, 'N', 'N', 'S'); 
       --end if;
 	  -- BUG BTHSC-8214
 
 	  insert into bethadba.hist_eventos(i_eventos,i_competencias, nome,tipo_pd,taxa,unidade,sai_rais,compoe_liq,compoe_hmes,digitou_form,classif_evento,cods_conversao,desativado,seq_impressao,
-									codigo_tce,deduc_fundo_financ)on existing skip
-		values (w_i_eventos,'2024-01-01', w_nome,w_tipo_pd,w_taxa,w_unidade,w_sai_rais,w_compoe_liq,w_compoe_hmes,w_digitou_form,w_classif_evento,null,'N',null,w_i_eventos,'N'); 
+									codigo_tce,caracteristica, deduc_fundo_financ)on existing skip
+		values (w_i_eventos,'2024-01-01', w_nome,w_tipo_pd,w_taxa,w_unidade,w_sai_rais,w_compoe_liq,w_compoe_hmes,w_digitou_form,w_classif_evento,null,'N',null,w_i_eventos, 'F','N'); 
 	
 	end for;
-end
+end;
 
 commit;
--- RUBRICA BUG BTHSC-7812
-insert into bethadba.eventos_hist_agrup_esocial (i_eventos,i_competencia_inicio,codigo_esocial)
+
+
+
+-- PARTE 2 BTHSC-134414
+insert into bethadba.eventos_hist_agrup_esocial (i_eventos, i_competencia_inicio ,codigo_esocial, nome_esocial, tabela_rubrica, rubrica_esocial, incidencia_previdencia, incidencia_irrf, incidencia_fgts, incidencia_contrato_sindical, incidencia_rpps)
 on existing skip   SELECT
-	 d.i_eventos AS ID_CLOUD,'1990-01-01',cdnaturezarubrica AS NAT_RUBRICA
-FROM gp001_verba v
+	 d.i_eventos AS ID_CLOUD,
+	 '1990-01-01',
+	id_cloud,
+	nome as nome_esocial,
+	1,
+	if v.cdNaturezaRubrica = 0 then null else v.cdNaturezaRubrica endif as rubrica_esocial,
+	case v.codIncCP 
+	when 18003 then '11' 
+	when 18001 then '00'
+	when 18004 then '12'
+	when 18015 then '51'
+	when 18012 then '32'
+	when 18006 then '22'
+	END AS incidencia_previdencia,
+	
+	
+	case v.codIncIRRF 
+	when 19003 then '11'
+	when 19046 then '79'
+	when 19004 then '12'
+	when 19005 then '13'
+	when 19014 then '42'
+	when 19020 then '52'
+	when 19019 then '51'
+	when 19013  then '79'
+	when 19037 then '79'
+	else '00'
+	end as incidencia_irrf,
+	
+	case codIncFgts
+	when 20002 then '11'
+	when 20001 then '00'
+	when 20003 then '12'
+	end as incidencia_fgts,
+	
+	case codIncSind
+	when 21001 then '00'
+	when 21003 then '31'
+	when 21002 then '11'	
+	end as incidencia_contrato_sindical,
+
+	case codIncCPRP
+	when 22001 then '00'
+	when 22002 then '11'
+	when 22003 then '12'
+	when 22004 then '31'
+	when 22005 then '32'
+	end as incidencia_rpps
+
+FROM tecbth_delivery.gp001_verba v
 LEFT JOIN tecbth_delivery.evento_aux d on d.evento = v.CdVerba
-where id_cloud is not null and nat_rubrica <>0
+where id_cloud is not null 
+commit;
+
+-- PARTE 3 BTHSC-134414
+insert into bethadba.itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao)
+values (23905, 'E', 'Eventual', '2999-12-31');
+insert into bethadba.itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao)
+values (23905, 'P', 'Percentual', '2999-12-31');
+
+-- PARTE 4 BTHSC-134414
+
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20361, 12, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20358, 12, 'N', '2999-12-31');
+
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20151, 12, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20166, 1, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20167, 2, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20278, 3, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20279, 4, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20280, 6, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20281, 7, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20282, 5, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20305, 8, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20312, 9, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20329, 10, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20330, 11, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20376, 13, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20377, 14, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20394, 15, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20396, 16, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20402, 17, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20416, 19, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20417, 20, 'N', '2999-12-31');
+INSERT INTO FolhaRh.bethadba.eventos_caract_cfg
+(i_caracteristicas, ordem, permite_excluir, dt_expiracao)
+VALUES(20513, 18, 'N', '2999-12-31');
+
+
+-- Parte 5 BTHSC-134414
+
+update bethadba.hist_eventos ev 
+left join tecbth_delivery.gp001_verba v 
+on ev.i_eventos = v.CdVerba 
+left join tecbth_delivery.gp001_constanteCalculo cc 
+on SIMILAR(V.DsVerba, cc.dsConstante) >= 35
+set taxa = isnull(cc.vlConstante, 0);
+
+update bethadba.EVENTOS ev 
+left join tecbth_delivery.gp001_verba v 
+on ev.i_eventos = v.CdVerba 
+left join tecbth_delivery.gp001_constanteCalculo cc 
+on SIMILAR(V.DsVerba, cc.dsConstante) >= 35
+set taxa = isnull(cc.vlConstante, 0);
+
+
+-- Parte 6 BTHSC-134414
+
+if  exists (select 1 from sys.sysprocedure where creator = (select user_id from sys.sysuserperms where user_name = current user) and proc_name = 'cnv_eventos_prop_adic') then
+	drop procedure cnv_eventos_prop_adic;
+end if;
+
+begin
+	ooLoop: for oo as cnv_eventos_prop_adic dynamic scroll cursor for
+		select distinct i_eventos as w_i_eventos from bethadba.eventos
+	do
+		message '(Inserindo os adicionais dos eventos) ' || w_i_eventos to client;
+	
+		
+			INSERT INTO Folharh.bethadba.eventos_prop_adic
+			(i_caracteristicas, i_eventos, valor_numerico, valor_decimal, valor_data, valor_caracter, valor_hora, valor_texto)
+			VALUES(20361, w_i_eventos, NULL, NULL, NULL, 'S', NULL, NULL);
+
+
+			INSERT INTO Folharh.bethadba.eventos_prop_adic
+			(i_caracteristicas, i_eventos, valor_numerico, valor_decimal, valor_data, valor_caracter, valor_hora, valor_texto)
+			VALUES(20358, w_i_eventos, NULL, NULL, NULL, '1', NULL, NULL);
+
+
+			INSERT INTO Folharh.bethadba.eventos_prop_adic
+			(i_caracteristicas, i_eventos, valor_numerico, valor_decimal, valor_data, valor_caracter, valor_hora, valor_texto)
+			VALUES(23905, w_i_eventos, NULL, NULL, NULL, 'P', NULL, NULL);
+
+	end for;
+end;
+commit;
 
 
 
 
+-- Parte 7 BTHSC-134414
+
+update bethadba.eventos e
+left join tecbth_delivery.gp001_MOVIMENTOATOLEGALTABELA mat 
+on e.i_eventos = mat.cdchave
+set e.descricao = mat.dsMovimentoAtoLegal
+where e.descricao is null
+
+-- Parte 8 BTHSC-134414
+update bethadba.eventos e 
+left join bethadba.eventos_prop_adic epc 
+on e.i_eventos = epc.i_eventos 
+set e.caracteristica = 'V'
+where epc.valor_caracter ='E'
 
 
-UPDATE eventos
-SET compoe_liq = 'N'
-where nome like '%base%' AND compoe_liq = 'S'
+update bethadba.hist_eventos e 
+left join bethadba.eventos_prop_adic epc 
+on e.i_eventos = epc.i_eventos 
+set e.caracteristica = 'V'
+where epc.valor_caracter ='E'
 
+update bethadba.eventos e 
+left join bethadba.eventos_prop_adic epc 
+on e.i_eventos = epc.i_eventos 
+set e.caracteristica = 'F'
+where epc.valor_caracter ='P'
+
+update bethadba.hist_eventos e 
+left join bethadba.eventos_prop_adic epc 
+on e.i_eventos = epc.i_eventos 
+set e.caracteristica = 'F'
+where epc.valor_caracter ='P'
