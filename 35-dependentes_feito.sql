@@ -273,6 +273,29 @@ update bethadba.funcionarios set dt_admissao = '2021-01-01' where i_funcionarios
 update bethadba.funcionarios set dt_admissao = '2022-12-15' where i_funcionarios = 92804;
 update bethadba.funcionarios set dt_admissao = '2022-01-01' where i_funcionarios = 92803;
 update bethadba.funcionarios set dt_admissao = '2024-05-03' where i_funcionarios = 92807;
+
+INSERT INTO Folharh.bethadba.pessoas_contas
+(i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
+VALUES(2518, 1, 27, 212, '23446          ', '1', 'A');
+INSERT INTO Folharh.bethadba.pessoas_contas
+(i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
+VALUES(3260, 1, 27, 212, '23446          ', '1', 'A');
+INSERT INTO Folharh.bethadba.pessoas_contas
+(i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
+VALUES(3617, 1, 27, 212, '23446          ', '1', 'A');
+INSERT INTO Folharh.bethadba.pessoas_contas
+(i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
+VALUES(5934, 1, 27, 212, '23446          ', '1', 'A');
+INSERT INTO Folharh.bethadba.pessoas_contas
+(i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
+VALUES(6158, 1, 27, 212, '23446          ', '1', 'A');
+INSERT INTO Folharh.bethadba.pessoas_contas
+(i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
+VALUES(6160, 1, 27, 212, '23446          ', '1', 'A');
+INSERT INTO Folharh.bethadba.pessoas_contas
+(i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
+VALUES(6162, 1, 27, 212, '23446          ', '1', 'A');
+
 -- Contas bancárias
  update bethadba.hist_funcionarios hf 
                    left join bethadba.funcionarios f 
