@@ -255,3 +255,10 @@ set vlr_proventos = (select coalesce(sum(vlr_calc),0)
 					 and t2.compoe_liq = 'S');
 
 commit;
+
+update bethadba.movimentos m 
+left join bethadba.eventos e 
+on m.i_eventos = e.i_eventos 
+set m.compoe_liq = e.compoe_liq
+
+update bethadba.movimentos set compoe_liq = 'N' where i_eventos = 1 and i_tipos_proc in (51,52)
