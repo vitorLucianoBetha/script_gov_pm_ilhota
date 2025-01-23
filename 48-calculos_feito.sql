@@ -230,10 +230,88 @@ select first tipo_pd,compoe_liq,classif_evento
 	end for;
 end;
 
---update bethadba.movimentos set compoe_liq = 'N' WHERE i_eventos in (441,4) and i_tipos_proc in (51,52) and i_funcionarios in (192864)
---update bethadba.dados_calc set dt_fechamento = dt_pagto, recibo_esocial = cast(i_funcionarios as varchar(15)) + '/' + cast(i_competencias  as varchar(20))
+
+-- Atualiza composição líquidas dos eventos
+update bethadba.movimentos m 
+left join bethadba.eventos e 
+on m.i_eventos = e.i_eventos 
+set m.compoe_liq = e.compoe_liq;
+
+-- Exclui eventos não informativos das folhas
+delete from bethadba.movimentos where i_eventos in (1,128,243) and i_tipos_proc in (51,52);
 
 
+CALL bethadba.dbp_conn_gera(1, 2019, 300);
+CALL bethadba.pg_setoption('wait_for_commit', 'on');
+CALL bethadba.pg_habilitartriggers('off');
+COMMIT;
+
+-- Insere bethadba.processamentos + bethadba.rescisoes_proc
+insert into bethadba.processamentos on existing skip
+select 
+1 as i_entidades,
+11 as i_tipos_proc,
+cast(left(dt_rescisao, 7) + '-01' as text) as i_competencias,
+1 as i_processamentos,
+i_competencias as dt_pagto,
+i_competencias as dt_fechamento,
+null as descricao,
+'N' as simulado,
+null as dt_liberacao,
+'S' as pagto_realizado,
+null as i_pagto_ant_rras,
+null as i_pagto_ant_rras_parc,
+null as pagto_ant_rras_13,
+'N' as fechado_esocial 
+from bethadba.rescisoes;
+
+insert into bethadba.rescisoes_proc 
+select 
+i_entidades,
+i_funcionarios,
+i_rescisoes,
+11 as i_tipos_proc,
+dateformat(dt_rescisao, 'yyyy-MM-01 H:mm:ss')  as i_competencias,
+1 as i_processamentos,
+'N' as recolh_grfc
+from bethadba.rescisoes;
+
+-- Atualiza férias
+
+delete from bethadba.movimentos where i_tipos_proc = 80 and i_eventos in (1,243,138,35, 393);
+
+-- bethadba.ferias_proc | bethadba.processamentos
+insert into bethadba.processamentos on existing skip
+select 
+1 as i_entidades,
+80 as i_tipos_proc,
+cast(left(dt_gozo_ini, 7) + '-01' as text) as i_competencias,
+1 as i_processamentos,
+i_competencias as dt_pagto,
+i_competencias as dt_fechamento,
+null as descricao,
+'N' as simulado,
+null as dt_liberacao,
+'S' as pagto_realizado,
+null as i_pagto_ant_rras,
+null as i_pagto_ant_rras_parc,
+null as pagto_ant_rras_13,
+'N' as fechado_esocial 
+from bethadba.ferias;
+
+insert into bethadba.ferias_proc 
+select 
+i_entidades,
+i_funcionarios,
+i_ferias,
+80 as i_tipos_proc,
+left(dt_gozo_ini, 7) + '-01' as i_competencias,
+1 as i_processamentos,
+1 as mes_ferias
+from bethadba.ferias
+
+
+-- Atualiza folhas finais para envio
 update bethadba.dados_calc as t1 
 set vlr_proventos = (select coalesce(sum(vlr_calc),0) 
 				     from bethadba.movimentos as t2 
@@ -256,9 +334,5 @@ set vlr_proventos = (select coalesce(sum(vlr_calc),0)
 
 commit;
 
-update bethadba.movimentos m 
-left join bethadba.eventos e 
-on m.i_eventos = e.i_eventos 
-set m.compoe_liq = e.compoe_liq
 
-update bethadba.movimentos set compoe_liq = 'N' where i_eventos = 1 and i_tipos_proc in (51,52)
+

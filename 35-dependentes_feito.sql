@@ -61,7 +61,7 @@ AND d.CdDependente = dv.CdDependente
 		elseif w_cdGrauDependencia = 8 then
 			set w_grau=6
 		elseif w_cdGrauDependencia = 11 then
-			set w_grau=7
+			set w_grau=2
 		elseif w_cdGrauDependencia = 21 then 
 			set w_grau = 1
 		else
