@@ -36,6 +36,7 @@ JOIN tecbth_delivery.gp001_Dependente AS d
     AND dv.CdDependente = d.CdDependente  
 JOIN tecbth_delivery.gp001_funcionario AS f 
     ON dv.CdMatricula = f.CdMatricula 
+	WHERE F.dtRescisao is null
 GROUP BY 
     dv.CdMatricula, 
     f.CdMatricula, 
