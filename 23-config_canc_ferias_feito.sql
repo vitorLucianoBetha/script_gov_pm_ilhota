@@ -16,7 +16,7 @@ if qtMesesConcessao = 0 then 1 else qtMesesConcessao endif as w_meses_concessao,
 if qtMesesCritica = 0 then 1 else qtMesesCritica endif as w_meses_critica,
 case CdTipoFerias 
 when 1 then 30
-when 2 then 20
+when 2 then 45
 end as w_num_dias_ferias,
 1 as w_inicio_periodo,
 null as w_diames_inicio_per,
@@ -50,8 +50,29 @@ CALL bethadba.pg_setoption('wait_for_commit','on');
 CALL bethadba.pg_habilitartriggers('off');
 COMMIT;
 
- 
+ -- Cadastro de faltas
 
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (1, 5, 0);
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (1, 14, 6);
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (1, 23, 12);
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (1, 32, 18);
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (1, 999, 30);
+
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (2, 5, 0);
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (2, 14, 15);
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (2, 23, 25);
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (2, 32, 35);
+insert into bethadba.desc_faltas (i_config_ferias, i_num_faltas, num_dias_desc)
+values (2, 999, 45);
 
 
 
