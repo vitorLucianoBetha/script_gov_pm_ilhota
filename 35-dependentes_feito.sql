@@ -281,7 +281,7 @@ INSERT INTO Folharh.bethadba.pessoas_contas
 VALUES(2518, 1, 27, 212, '23446          ', '1', 'A');
 INSERT INTO Folharh.bethadba.pessoas_contas
 (i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
-VALUES(3260, 1, 27, 212, '23446          ', '1', 'A');
+VALUES(3260, 1, 85, 101, '220814', '1', 'A');
 INSERT INTO Folharh.bethadba.pessoas_contas
 (i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
 VALUES(3617, 1, 27, 212, '23446          ', '1', 'A');
@@ -290,13 +290,13 @@ INSERT INTO Folharh.bethadba.pessoas_contas
 VALUES(5934, 1, 27, 212, '23446          ', '1', 'A');
 INSERT INTO Folharh.bethadba.pessoas_contas
 (i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
-VALUES(6158, 1, 27, 212, '23446          ', '1', 'A');
+VALUES(6158, 1, 756, 3069, '2010194', '1', 'A');
 INSERT INTO Folharh.bethadba.pessoas_contas
 (i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
 VALUES(6160, 1, 27, 212, '23446          ', '1', 'A');
 INSERT INTO Folharh.bethadba.pessoas_contas
 (i_pessoas, i_pessoas_contas, i_bancos, i_agencias, num_conta, tipo_conta, status)
-VALUES(6162, 1, 27, 212, '23446          ', '1', 'A');
+VALUES(6162, 1, 237, 3333, '1005308', '1', 'A');
 
 -- Contas bancárias
  update bethadba.hist_funcionarios hf 
