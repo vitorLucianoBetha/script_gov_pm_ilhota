@@ -269,7 +269,7 @@ VALUES(1, 92807, '2025-01-01', 1, '10605', 1, 13, 174, NULL, NULL, NULL, 1, NULL
 
 -- Ajuste inclusão de pensão
 update bethadba.funcionarios set dt_admissao = '2014-09-01' where i_funcionarios = 92805;
-update bethadba.funcionarios set dt_admissao = '2016-03-01' where i_funcionarios = 92801;
+update bethadba.funcionarios set dt_admissao = '2016-03-01' where i_funcionarios in (92801, 91715);
 update bethadba.funcionarios set dt_admissao = '2014-09-01' where i_funcionarios = 92802;
 update bethadba.funcionarios set dt_admissao = '2021-01-01' where i_funcionarios = 92806;
 update bethadba.funcionarios set dt_admissao = '2022-12-15' where i_funcionarios = 92804;
