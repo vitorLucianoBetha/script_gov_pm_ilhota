@@ -33,6 +33,7 @@ begin
     declare w_i_referencias_ini varchar(9);
     declare w_i_clas_niveis_fin varchar(9);
     declare w_i_referencias_fin varchar(9);
+	declare w_i_config_ferias integer;
 	
 	ooLoop: for oo as cnv_cargos dynamic scroll cursor for
 		select 1 as w_i_entidades,CdCargo as w_i_cargos,cdGrupoCboCargo as w_cdGrupoCboCargo,cdCboCargo as w_cdCboCargo,TpCargo as w_TpCargo,upper(DsCargo) as w_nome,QtVagas_OLD as w_vagas_acresc,
@@ -88,6 +89,14 @@ begin
 		
 		insert into bethadba.cargos(i_entidades,i_cargos,i_cbo,i_tipos_cargos,nome)on existing skip
 		values(w_i_entidades,w_i_cargos,w_i_cbo,w_i_tipos_cargos,w_nome);
+
+
+		-- BTHSC-138631
+		if w_i_cargos in(61,68,162,176,156) then
+			set w_i_config_ferias = 2
+		else
+			set w_i_config_ferias = 1
+		end if;
 		
 		// *****  Converte tabela bethadba.cargos_compl 		
 		if w_i_tipos_cargos = any(select i_tipos_cargos from bethadba.tipos_cargos where classif = 2) then
@@ -99,7 +108,7 @@ begin
         set w_qtd_vagas = 0
         end if;
 		insert into bethadba.cargos_compl(i_entidades,i_cargos,i_config_ferias,i_config_ferias_subst,qtd_vagas,rol,grau_instrucao,codigo_tce,decimo_terc,requisitos,atividades)on existing skip
-		values (w_i_entidades,w_i_cargos,1,w_i_config_ferias_subst,w_qtd_vagas,null,1,w_i_cargos,'S',null,null);
+		values (w_i_entidades,w_i_cargos,w_i_config_ferias,w_i_config_ferias_subst,w_qtd_vagas,null,1,w_i_cargos,'S',null,null);
 
 		// *****  Converte tabela bethadba.hist_cargos_compl
         message 'Verificando se o cargo passou pela configuração 1' to client;
