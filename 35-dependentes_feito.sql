@@ -180,7 +180,7 @@ update bethadba.hist_pessoas_fis set rg = null, num_pis = null, cpf = null where
                    case cdGrauDependencia 
                    when 31 then 12 
                    when 21 then 1
-                   when 11 then 1
+                   when 11 then 2
                    end as grau,
                    dtInclusao as dt_ini_depende 
                    from tecbth_delivery.gp001_BENEFICIARIO
