@@ -5,6 +5,12 @@ CALL bethadba.pg_habilitartriggers('off');
 call bethadba.pg_setoption('fire_triggers','off');
 COMMIT;
 
+-- BTHSC-139752 Bug em Cargos | Campos adicionais
+INSERT INTO caracteristicas (i_caracteristicas, nome, tipo_dado, tamanho, formato, valor_padrao, obrigatorio, observacao, deletar) VALUES(15001, 'Tipo de cargo p/ fins de Acumu', 6, NULL, NULL, NULL, 'N', 'Conforme Tabela TCE nº77', 0);
+INSERT INTO itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao) VALUES(15001, '1   ', 'Professor', '2999-12-31');
+INSERT INTO itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao) VALUES(15001, '2   ', 'Cargo privativo de profissionais de saúde, com profissão regulamentada;', '2999-12-31');
+INSERT INTO itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao) VALUES(15001, '99  ', 'Não se aplica', '2999-12-31');
+
 DELETE FROM bethadba.cargos;
 DELETE FROM bethadba.mov_cargos;
 DELETE FROM  bethadba.hist_cargos_compl;
