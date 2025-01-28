@@ -124,3 +124,22 @@ begin
 		
 	end for;
 end;
+
+
+-- Ajuste BTHSC-139782
+
+UPDATE BETHADBA.hist_cargos hc
+left join tecbth_delivery.gp001_conc_concursofuncionario c
+on hc.i_cargos = c.cdCargo and hc.i_funcionarios = c.cdMatricula
+set hc.i_concursos = cast(cdNroAno as int);
+
+
+UPDATE BETHADBA.hist_cargos hc
+left join tecbth_delivery.gp001_FUNCIONARIO f 
+on hc.i_funcionarios = f.cdMatricula 
+set hc.dt_nomeacao = if f.dtNomeacao is null or f.dtNomeacao in ('NULL') then null else cast(f.dtNomeacao as date) endif;
+
+UPDATE BETHADBA.hist_cargos hc
+left join tecbth_delivery.gp001_FUNCIONARIO f 
+on hc.i_funcionarios = f.cdMatricula 
+set hc.dt_posse = if f.DtPosseCargo  is null or f.DtPosseCargo in ('NULL') then null else cast(f.DtPosseCargo as date) endif;
