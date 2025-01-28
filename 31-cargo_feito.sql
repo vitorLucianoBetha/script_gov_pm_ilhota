@@ -92,7 +92,7 @@ begin
 
 
 		-- BTHSC-138631
-		if w_i_cargos in(61,68,162,176,156) then
+		if w_i_cargos in(61,68,162,176,156,67,69,160) then
 			set w_i_config_ferias = 2
 		else
 			set w_i_config_ferias = 1
