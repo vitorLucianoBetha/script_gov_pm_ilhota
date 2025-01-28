@@ -5,6 +5,12 @@ CALL bethadba.pg_habilitartriggers('off');
 call bethadba.pg_setoption('fire_triggers','off');
 COMMIT;
 
+-- BTHSC-139752 Bug em Cargos | Campos adicionais
+INSERT INTO caracteristicas (i_caracteristicas, nome, tipo_dado, tamanho, formato, valor_padrao, obrigatorio, observacao, deletar) VALUES(15001, 'Tipo de cargo p/ fins de Acumu', 6, NULL, NULL, NULL, 'N', 'Conforme Tabela TCE nº77', 0);
+INSERT INTO itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao) VALUES(15001, '1   ', 'Professor', '2999-12-31');
+INSERT INTO itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao) VALUES(15001, '2   ', 'Cargo privativo de profissionais de saúde, com profissão regulamentada;', '2999-12-31');
+INSERT INTO itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao) VALUES(15001, '99  ', 'Não se aplica', '2999-12-31');
+
 DELETE FROM bethadba.cargos;
 DELETE FROM bethadba.mov_cargos;
 DELETE FROM  bethadba.hist_cargos_compl;
@@ -36,10 +42,27 @@ begin
 	declare w_i_config_ferias integer;
 	
 	ooLoop: for oo as cnv_cargos dynamic scroll cursor for
-		select 1 as w_i_entidades,CdCargo as w_i_cargos,cdGrupoCboCargo as w_cdGrupoCboCargo,cdCboCargo as w_cdCboCargo,TpCargo as w_TpCargo,upper(DsCargo) as w_nome,QtVagas_OLD as w_vagas_acresc,
-			QtVagas_OLD as w_qtd_vagas,date(DtLeiCargo) as w_dt_lei,date(DtLeiCargo) as w_dt_vigorar,NrLeiCargo as w_num_lei,CdTribunal as w_CdTribunal,DtDesativacao as w_dt_leii,
-			DtDesativacao as w_dt_vigorarr,ymd(year(DtLeiCargo),month(DtLeiCargo),1) as w_dt_alteracoes, DtDesativacao as w_DtDesativacao
-		 from tecbth_delivery.gp001_cargo
+	-- BTHSC-139752 Bug em Cargos | Campos adicionais
+		select 1 as w_i_entidades,
+			A.CdCargo as w_i_cargos,
+			cdGrupoCboCargo as w_cdGrupoCboCargo,
+			cdCboCargo as w_cdCboCargo,
+			A.TpCargo as w_TpCargo,
+			upper(DsCargo) as w_nome,
+			QtVagas_OLD as w_vagas_acresc,
+			QtVagas_OLD as w_qtd_vagas,
+			date(DtLeiCargo) as w_dt_lei,
+			date(DtLeiCargo) as w_dt_vigorar,
+			NrLeiCargo as w_num_lei,
+			CdTribunal as w_CdTribunal,
+			DtDesativacao as w_dt_leii,
+			DtDesativacao as w_dt_vigorarr,
+			ymd(year(DtLeiCargo),month(DtLeiCargo),1) as w_dt_alteracoes,
+			DtDesativacao as w_DtDesativacao,
+			B.tpQuadro as w_tpquadro, 
+			B.tpCargo as w_tpcargo
+		 from tecbth_delivery.gp001_cargo A
+		 join tecbth_delivery.gp001_TCSCCARGOS B on A.CdCargo = B.CdCargo
 	do
 		set w_i_cbo = null;
 		set w_i_tipos_cargos = null;
@@ -90,6 +113,12 @@ begin
 		insert into bethadba.cargos(i_entidades,i_cargos,i_cbo,i_tipos_cargos,nome)on existing skip
 		values(w_i_entidades,w_i_cargos,w_i_cbo,w_i_tipos_cargos,w_nome);
 
+		-- BTHSC-139752 Bug em Cargos | Campos adicionais
+		insert into bethadba.cargos_prop_adic(i_caracteristicas,i_entidades,i_cargos,valor_caracter) on existing skip
+		values(20092,w_i_entidades,w_i_cargos,w_tpquadro);
+		-- BTHSC-139752 Bug em Cargos | Campos adicionais
+		insert into bethadba.cargos_prop_adic(i_caracteristicas,i_entidades,i_cargos,valor_caracter) on existing skip
+		values(15001,w_i_entidades,w_i_cargos,w_tpcargo);
 
 		-- BTHSC-138631
 		if w_i_cargos in(61,68,162,176,156,67,69,160) then
