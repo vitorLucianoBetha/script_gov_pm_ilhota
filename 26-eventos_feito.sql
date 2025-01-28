@@ -174,6 +174,10 @@ where id_cloud is not null
 commit;
 
 -- PARTE 3 BTHSC-134414
+INSERT INTO Folharh.bethadba.caracteristicas
+(i_caracteristicas, nome, tipo_dado, tamanho, formato, valor_padrao, obrigatorio, observacao, deletar)
+VALUES(23905, 'Indicador de Componente', 6, NULL, NULL, NULL, 'N', NULL, 0);
+
 insert into bethadba.itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao)
 values (23905, 'E', 'Eventual', '2999-12-31');
 insert into bethadba.itens_lista (i_caracteristicas, i_itens_lista, descricao, dt_expiracao)
