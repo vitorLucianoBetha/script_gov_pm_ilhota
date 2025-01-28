@@ -30,9 +30,10 @@ begin
 	declare w_comp_descto date;
 	declare w_i_faltas integer;
 	
+	--ajustes chamado BTHSC-141519
 	ooLoop: for oo as cnv_faltas dynamic scroll cursor for
 		select 1 as w_i_entidades,cdMatricula as w_CdMatricula,SqContrato as w_SqContrato,CdAusencia+4 as w_CdAusencia,date(DtInicio) as w_dt_inicial,DtFim as w_DtFim,nrDias as w_nrDias,
-			   right(nrHorasDiurnas,5) as w_nrHorasDiurnas,InSituacao as w_InSituacao 
+			   nrHorasDiurnas as w_nrHorasDiurnas,InSituacao as w_InSituacao 
 		from tecbth_delivery.gp001_MovimentoFrequencia as MovimentoFrequencia
 	do
 		
@@ -92,3 +93,44 @@ begin
 	end for;
 end;
 
+--Rodar ajustes apos preenchimento da tabela chamado BTHSC-141519
+SELECT 	i_funcionarios,
+		i_faltas,
+		dt_inicial,
+		qtd_faltas,
+		primeiros_digitos, 
+		parte_decimal / 60,
+		isnull(case 
+			when primeiros_digitos = 0 then parte_decimal / 60 
+			when primeiros_digitos != 0 then primeiros_digitos + parte_decimal / 60 
+		end, primeiros_digitos) as ajuste
+into ajustes_horas_faltas
+from(
+select  i_funcionarios, 
+		i_faltas,
+		dt_inicial,
+		qtd_faltas,
+		CASE 
+		    WHEN FLOOR(qtd_faltas) < 100 THEN CAST(FLOOR(qtd_faltas) AS VARCHAR)
+		    ELSE SUBSTRING(CAST(FLOOR(qtd_faltas) AS VARCHAR), 1, 3)
+		  END AS primeiros_digitos,
+		  CASE 
+		    WHEN qtd_faltas = FLOOR(qtd_faltas) THEN NULL -- Se não houver parte decimal
+		    ELSE SUBSTRING(CAST(qtd_faltas AS VARCHAR), CHARINDEX('.', CAST(qtd_faltas AS VARCHAR)) + 1, 2) -- 3 primeiros dígitos após o ponto
+		  END AS parte_decimal
+from faltas) as cons
+--where i_funcionarios = 90530
+--and dt_inicial = '2022-07-20'
+
+select * from ajustes_horas_faltas
+
+ROLLBACK;
+CALL bethadba.dbp_conn_gera(1, 2019, 300);
+CALL bethadba.pg_setoption('wait_for_commit', 'on');
+CALL bethadba.pg_habilitartriggers('off');
+COMMIT;
+
+update
+  faltas f
+join ajustes_horas_faltas hf on(f.i_funcionarios = hf.i_funcionarios and f.dt_inicial = hf.dt_inicial and f.i_faltas = hf.i_faltas)
+set f.qtd_faltas = ajuste

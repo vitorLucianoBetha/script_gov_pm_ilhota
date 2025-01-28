@@ -17,15 +17,18 @@ from   tecbth_delivery.gp001_HISTORICOAFASTAMENTO where  DtInicioAfastamento is 
 	do
 		
 		// *****  Inicializa Variaveis
-		set w_i_funcionarios=null;
-		set w_i_tipos_afast=w_CdMotivoAfastamento;
+		set w_i_funcionarios = null;
+		set w_i_tipos_afast = w_CdMotivoAfastamento;
 		
 		// *****  Converte tabela bethadba.afastamentos
 		set w_i_funcionarios=cast(w_cdMatricula as integer);
 		
 		
 
-		if exists(select 1 from bethadba.funcionarios where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios) then
+		if exists(select 1 
+					from bethadba.funcionarios 
+					where i_entidades = w_i_entidades 
+					and i_funcionarios = w_i_funcionarios) then
 			message 'Ent.: '||w_i_entidades||' Fun.: '||w_i_funcionarios||' Tip.: '||w_i_tipos_afast||' Dt. Ini: '||w_dt_afastamento||' Dt. Fin.: '||w_dt_ultimo_dia to client;
 			
 			insert into bethadba.afastamentos(i_entidades,i_funcionarios,dt_afastamento,i_tipos_afast,i_atos,dt_ultimo_dia,req_benef,comp_comunic)on existing skip
