@@ -14,11 +14,22 @@ begin
 	// *****  Tabela bethadba.periodos_ferias
 	declare w_dt_admissao date;
 	-- BUG BTHSC-8157 Migrou intervalo de período aquisitivo de férias errado
+	-- BTHSC-135064 Bug em Períodos Aquisitivos | Período não foi migrado para cloud
 	ooLoop: for oo as cnv_periodos dynamic scroll cursor for
-		select 1 as w_i_entidades, cdMatricula  as w_cdMatricula,SqContrato as w_SqContrato,NrPeriodo as w_NrPeriodo,date(DtInicioPeriodo) as w_dt_aquis_ini,date(DtFimPeriodo) as w_DtFimPeriodo,
-			   NrDiasFeriasDireito as w_num_dias_dir,date(DtInicioSuspensao) as w_dt_inicial,date(DtFimSuspensao) as w_dt_final,NrDiasPerdeAfastamento as w_num_dias,
-			   nrDiasAbonoDireito  as w_nrDiasAbonoDireito,date(DtFimPeriodo) as w_dt_aquis_fin,date(DtInicioPeriodo) as w_dt_periodo
-		from tecbth_delivery.gp001_PeriodoAquisicao  
+		select 1 as w_i_entidades,
+			cdMatricula as w_cdMatricula,
+			SqContrato as w_SqContrato,
+			NrPeriodo as w_NrPeriodo,
+			date(DtInicioPeriodo) as w_dt_aquis_ini,
+			if date(DtFimPeriodo) < w_dt_aquis_ini then date(dateadd(year,1,w_dt_aquis_ini) -1) else  date(DtFimPeriodo) endif as w_DtFimPeriodo,
+			NrDiasFeriasDireito as w_num_dias_dir,
+			date(DtInicioSuspensao) as w_dt_inicial,
+			date(DtFimSuspensao) as w_dt_final,
+			NrDiasPerdeAfastamento as w_num_dias,
+			nrDiasAbonoDireito as w_nrDiasAbonoDireito,
+			if date(DtFimPeriodo) < w_dt_periodo then date(dateadd(year,1,w_dt_periodo) -1) else  date(DtFimPeriodo) endif as w_dt_aquis_fin,
+			date(DtInicioPeriodo) as w_dt_periodo
+		from tecbth_delivery.gp001_PeriodoAquisicao
 		order by 1,2,3,5 asc	
 
 	do
