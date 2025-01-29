@@ -27,15 +27,41 @@ begin
 	declare w_tipo_conta char(1);
 	declare w_status char(1);
 	declare w_provimento integer;
+	declare w_conselheiro char(1);
 	
 	ooLoop: for oo as cnv_funcionarios dynamic scroll cursor for
-		select 1 as w_i_entidades,cdMatricula as w_cdMatricula,SqContrato as w_SqContrato,CdPessoa as w_CdPessoa,date(DtAdmissao) as w_dt_admissao,cdAdmissao as w_cdAdmissao,
-			   tpPagamento as w_categoria,date(dtOpcaoFgts) as w_dt_opcao_fgts,nrContaFgts as w_nrContaFgts,InContribuicaoSindical as w_InContribuicaoSindical,SqCartaoPonto as w_SqCartaoPonto,
-			   upper(inRais) as w_sai_rais,fu_tirachars(fu_tirachars(fu_tirachars(nrContaCorrente,'X'),'.'),',') as w_nrContaCorrente,dgContaCorrente as w_dgContaCorrente,NrBancoContaCorrente as w_i_bancos,NrAgenciaContaCorrente as w_i_agencias,
-			   cdTipoContaCorrente as w_cdTipoContaCorrente,NrFichaRegistro as w_NrFichaRegistro,dtFimContrato as w_dtFimContrato,inConcurso as w_inConcurso,dtConcurso as w_dtConcurso,
-			   CdSindicato as w_cdSindicato,DtPosseCargo as w_DtPosseCargo,nrConcurso as w_nrConcurso,inSituacaoFuncional as w_inSituacaoFuncional,date(dtAdmissao) as w_dt_base,cdvinculoEmpregaticio as vinculos ,DtPosseCargo as w_dt_posse, CD_MATRICULA_ESOCIAL  AS w_esocial, cdcargo as w_cargos
+		select 1 as w_i_entidades,
+			cdMatricula as w_cdMatricula,
+			SqContrato as w_SqContrato,
+			CdPessoa as w_CdPessoa,
+			date(DtAdmissao) as w_dt_admissao,
+			cdAdmissao as w_cdAdmissao,
+			tpPagamento as w_categoria,
+			date(dtOpcaoFgts) as w_dt_opcao_fgts,
+			nrContaFgts as w_nrContaFgts,
+			InContribuicaoSindical as w_InContribuicaoSindical,
+			SqCartaoPonto as w_SqCartaoPonto,
+			upper(inRais) as w_sai_rais,
+			fu_tirachars(fu_tirachars(fu_tirachars(nrContaCorrente,'X'),'.'),',') as w_nrContaCorrente,
+			dgContaCorrente as w_dgContaCorrente,
+			NrBancoContaCorrente as w_i_bancos,
+			NrAgenciaContaCorrente as w_i_agencias,
+			cdTipoContaCorrente as w_cdTipoContaCorrente,
+			NrFichaRegistro as w_NrFichaRegistro,
+			dtFimContrato as w_dtFimContrato,
+			inConcurso as w_inConcurso,
+			dtConcurso as w_dtConcurso,
+			CdSindicato as w_cdSindicato,
+			DtPosseCargo as w_DtPosseCargo,
+			nrConcurso as w_nrConcurso,
+			inSituacaoFuncional as w_inSituacaoFuncional,
+			date(dtAdmissao) as w_dt_base,
+			cdvinculoEmpregaticio as vinculos,
+			DtPosseCargo as w_dt_posse,
+			CD_MATRICULA_ESOCIAL AS w_esocial,
+			cdcargo as w_cargos
 		from  tecbth_delivery.gp001_funcionario 
-		order by 1,2,4 asc		
+		order by 1,2,4 asc
 	do
 
 
@@ -45,6 +71,7 @@ begin
 		set w_i_funcionarios=null;
 		set w_dv=null;
 		set w_i_pessoas=null;
+		set w_conselheiro='N';
 		
 		// *****  Converte tabela bethadba.funcionarios
 		-- BUG BTHSC-6292
@@ -118,6 +145,11 @@ from gp001_CARGO  where cdcargo = w_cargos;
 		if vinculos in (17, 52, 51) then 
 		set w_tipo_func='A'
 		end if;
+		-- BTHSC-142741 Bug em Matrículas | Conselheiro Tutelar
+		if vinculos in (25) then 
+			set w_tipo_func='A'
+			set w_conselheiro = 'S'
+		end if;
 		--bug BTHSC-8074 Data da Posse
 		if w_dt_base is null then
 		set w_dt_base = w_dt_admissao
@@ -127,9 +159,9 @@ from gp001_CARGO  where cdcargo = w_cargos;
 		if w_i_pessoas != 0 then
 			message 'Ent.: '||w_i_entidades||' Fun.: '||w_i_funcionarios||' Pes.: '||w_i_pessoas||' Adm.: '||w_dt_admissao to client;
 			insert into bethadba.funcionarios(i_entidades,i_funcionarios,dv,i_pessoas,dt_admissao,tipo_admissao,categoria,dt_opcao_fgts,conta_fgts,dt_base,contrib_sindical,i_sindicatos,conta_vaga,
-											sai_rais,tipo_func,tipo_pens,conta_adicional,conta_licpremio,conta_temposerv,lei_contrato,codigo_esocial,tipo_provimento)on existing skip
+											sai_rais,tipo_func,tipo_pens,conta_adicional,conta_licpremio,conta_temposerv,lei_contrato,codigo_esocial,tipo_provimento,conselheiro_tutelar)on existing skip
 			values (w_i_entidades,w_i_funcionarios,w_dv,w_i_pessoas,w_dt_admissao,w_tipo_admissao,w_categoria,w_dt_opcao_fgts,w_conta_fgts,w_dt_base,w_contrib_sindical,w_i_sindicatos,'S',
-					w_sai_rais,w_tipo_func,null,'N','N','N',null,w_esocial,w_provimento);
+					w_sai_rais,w_tipo_func,null,'N','N','N',null,w_esocial,w_provimento,w_conselheiro);
 			
 			// *****  Converte tabela bethadba.pessoas_contas
 			set w_i_pessoas_contas=null;
