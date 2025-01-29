@@ -95,3 +95,23 @@ begin
 	end for;
 end;
 
+-- insere cancelamento para os periodos que possuem perdas em afastamentos, combinado até 29/01/2025 com a Mariane
+insert into bethadba.periodos_ferias on existing skip
+select 1,
+		gp.CdMatricula,
+		(select first i_periodos
+		from bethadba.periodos 
+		where i_entidades = 1 
+		and i_funcionarios = gp.CdMatricula 
+		and dt_aquis_ini = gp.DtInicioPeriodo) as periodo,
+		2,
+		5,
+		date(gp.DtFimPeriodo) as dt_periodo,
+		30,
+		null,
+		'S',
+		null,
+		null
+from tecbth_delivery.gp001_PERIODOAQUISICAO gp where NrDiasPerdeAfastamento > 0
+and not exists(select first 1 from bethadba.periodos_ferias pf where pf.i_funcionarios = gp.CdMatricula and pf.i_periodos = periodo and pf.tipo <> 1)
+and dateadd(year,1,gp.DtFimPeriodo) < GETDATE()
