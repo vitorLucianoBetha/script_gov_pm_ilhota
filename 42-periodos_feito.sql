@@ -1,9 +1,12 @@
-ROLLBACK;
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
 CALL bethadba.pg_setoption('wait_for_commit','on');
 CALL bethadba.pg_habilitartriggers('off');
-call bethadba.pg_setoption('fire_triggers','off');
-COMMIT;
+commit;
+
+if  exists (select 1 from sys.sysprocedure where creator = (select user_id from sys.sysuserperms where user_name = current user) and proc_name = 'cnv_periodos') then
+	drop procedure cnv_periodos;
+end if;
+
 begin
 	// *****  Tabela bethadba.periodos
 	declare w_i_funcionarios integer;
@@ -31,7 +34,6 @@ begin
 			date(DtInicioPeriodo) as w_dt_periodo
 		from tecbth_delivery.gp001_PeriodoAquisicao
 		order by 1,2,3,5 asc	
-
 	do
 		
 		// *****  Inicializa Variaveis
@@ -69,19 +71,11 @@ begin
 				if not exists(select 1 from bethadba.periodos where	i_entidades = w_i_entidades and	i_funcionarios = w_i_funcionarios and dt_aquis_ini = w_dt_aquis_ini) then
 					message 'Ent.: '||w_i_entidades||' Fun.: '||w_i_funcionarios||' Per.: '||w_i_periodos||' Dt. Ini.: '||w_dt_aquis_ini||' Dt Fin.: '||w_dt_aquis_fin to client;
 				
-					insert into  bethadba.periodos(i_entidades,i_funcionarios,i_periodos,dt_aquis_ini,dt_aquis_fin,num_dias_dir,dt_previsao,num_dias_abono)on existing skip
-					values (w_i_entidades,w_i_funcionarios,w_i_periodos,w_dt_aquis_ini,w_dt_aquis_fin,w_num_dias_dir,w_dt_previsao,w_num_dias_abono);
-				
-					insert into bethadba.periodos_ferias(i_entidades,i_funcionarios,i_periodos,i_periodos_ferias,tipo,dt_periodo,num_dias,observacao,manual,i_ferias,i_rescisoes)on existing skip
-					values (w_i_entidades,w_i_funcionarios,w_i_periodos,1,1,w_dt_periodo,30,null,'S',null,null);
+					insert into bethadba.periodos(i_entidades,i_funcionarios,i_periodos,dt_aquis_ini,dt_aquis_fin,num_dias_dir,dt_previsao,num_dias_abono)on existing skip
+					values (w_i_entidades,w_i_funcionarios,w_i_periodos,w_dt_aquis_ini,w_dt_aquis_fin,w_num_dias_dir,w_dt_previsao,w_num_dias_abono);									
 				
 					if (w_dt_final - w_dt_inicial) >= 180 then					
-						message 'Cancelamento Ent.: '||w_i_entidades||' Fun.: '||w_i_funcionarios||' Per.: '||w_i_periodos to client;
-						
-						insert into bethadba.periodos_ferias(i_entidades,i_funcionarios,i_periodos,i_periodos_ferias,tipo,dt_periodo,num_dias,observacao,manual,i_ferias,i_rescisoes)on existing skip
-						values (w_i_entidades,w_i_funcionarios,w_i_periodos,2,5,w_dt_aquis_fin,30,'Período cancelado pelo afastamento maior que 180 dias. Período de afastamento: '||w_dt_inicial||' até '||w_dt_final||'.',
-								'S',null,null);
-						
+					
 						message 'Suspensão Ent.: '||w_i_entidades||' Fun.: '||w_i_funcionarios||' Per.: '||w_i_periodos||' Dt. Ini.: '||w_dt_inicial||' Dt Fin.: '||w_dt_final to client;
 						
 						insert into bethadba.susp_periodos(i_entidades,i_funcionarios,i_periodos,dt_inicial,dt_final,observacao)on existing skip
@@ -100,3 +94,4 @@ begin
 		
 	end for;
 end;
+
