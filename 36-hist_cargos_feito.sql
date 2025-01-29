@@ -130,8 +130,9 @@ end;
 
 UPDATE BETHADBA.hist_cargos hc
 left join tecbth_delivery.gp001_conc_concursofuncionario c
-on hc.i_cargos = c.cdCargo and hc.i_funcionarios = c.cdMatricula
-set hc.i_concursos = cast(cdNroAno as int);
+on hc.i_funcionarios = c.cdMatricula
+set hc.i_concursos = LEFT(cdNroAno, LENGTH(cdNroAno) - 3) 
+where cdNroAno not in (0, '0');
 
 
 UPDATE BETHADBA.hist_cargos hc
