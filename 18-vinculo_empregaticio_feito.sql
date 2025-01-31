@@ -24,11 +24,11 @@ begin
 			else 1 end,
 		    coalesce(CdVinculoRais,10) as w_codigo_rais,
 		    if tpRegimeContrato = 'C' then 1 else 2 endif as w_tipo_vinculo,
-		    w_categoriaesocial = case et.CD_CATEGORIA_TRABALHADOR when 721 then 741
-		    	when 722 then 741
-		    	when 723 then 741
-		    	when 751 then 741
-		    else isnull(et.CD_CATEGORIA_TRABALHADOR,101) end,
+		    w_categoriaesocial = if et.CD_CATEGORIA_TRABALHADOR in (721,722,723,751) then 741
+		    					else 
+		    						if et.CD_CATEGORIA_TRABALHADOR not in ( 101,103,105,106,301,302,303,304,305,306,307,309,310,311,312,313,410,701,711,712,741,771,901,902,903,904,906) then 301
+		    						else isnull(et.CD_CATEGORIA_TRABALHADOR,101) endif
+		    					endif,
 		    gtv.CD_VINCULO_TCE as w_codigo_tce,
 		if D.CdTipoVinculoTCSC = 7 then 'S' else 'N' endif as w_temporario
 		from tecbth_delivery.gp001_vinculoempregaticio vp
@@ -80,12 +80,6 @@ END);
 		if w_codigo_rais = 0 then
 			set w_codigo_rais = 10;
 		end if;
-	IF w_categoriaesocial  in( '101','103','105','106','301','302','303','304','305','306','307','309','310','311','312','313','410','701','711','712','741','771','901','902','903','904','906') 
-        then 
-        set w_categoriaesocial = w_categoriaesocial
-     else
-        set w_categoriaesocial = 301
-    end if;	
 		
 		if not exists(select 1 from bethadba.vinculos where	trim(descricao) = trim(w_descricao) and	tipo_func = 'F') then
 			message 'Vin.: '||string(w_i_vinculos)||' Des.: '||string(w_descricao) to client;
