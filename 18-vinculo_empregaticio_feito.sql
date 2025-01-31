@@ -25,9 +25,11 @@ begin
 		    coalesce(CdVinculoRais,10) as w_codigo_rais,
 		    if tpRegimeContrato = 'C' then 1 else 2 endif as w_tipo_vinculo,
 		    w_categoriaesocial = if et.CD_CATEGORIA_TRABALHADOR in (721,722,723,751) then 741
-		    					else 
-		    						if et.CD_CATEGORIA_TRABALHADOR not in ( 101,103,105,106,301,302,303,304,305,306,307,309,310,311,312,313,410,701,711,712,741,771,901,902,903,904,906) then 301
-		    						else isnull(et.CD_CATEGORIA_TRABALHADOR,101) endif
+		    					else
+									if et.CD_CATEGORIA_TRABALHADOR in (102,202) then 701 else
+										if et.CD_CATEGORIA_TRABALHADOR not in ( 101,103,105,106,301,302,303,304,305,306,307,309,310,311,312,313,410,701,711,712,741,771,901,902,903,904,906) then 301
+										else isnull(et.CD_CATEGORIA_TRABALHADOR,101) endif
+									endif
 		    					endif,
 		    gtv.CD_VINCULO_TCE as w_codigo_tce,
 		if D.CdTipoVinculoTCSC = 7 then 'S' else 'N' endif as w_temporario
@@ -35,7 +37,7 @@ begin
 		left join tecbth_delivery.gp001_eSocial_Categoria_Trabalhador et on vp.cdCategoriaTrabalhador_eSocial = et.PKID
 		left join tecbth_delivery.gp001_TCSC_VINCULO_EMPREGATICIO gtv on gtv.CD_VINCULO_EMPREGATICIO = vp.CdVinculoEmpregaticio
 		left join tecbth_delivery.gp001_TCSC_Tipo_Vinculo_DePara D on vp.CdVinculoEmpregaticio = D.CdTipoVinculoGP
-ORDER BY w_i_vinculos
+		ORDER BY w_i_vinculos
 	do
 
 		// *****  Inicializa Variaveis
