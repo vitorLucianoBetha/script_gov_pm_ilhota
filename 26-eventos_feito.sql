@@ -314,30 +314,54 @@ set e.descricao = mat.dsMovimentoAtoLegal
 where e.descricao is null
 
 -- Parte 8 BTHSC-134414
+
+update bethadba.eventos e 
+left join tecbth_delivery.gp001_VERBA 
+on e.i_eventos = gp001_verba.cdVerba
+set tipo_pd = tpcategoria ,compoe_liq = 'S'
+where tpCategoria in ('P', 'D');
+
+update bethadba.eventos_prop_adic 
+set valor_caracter = 'S' 
+where i_caracteristicas = 20361;
+
+update bethadba.eventos_prop_adic ev 
+left join tecbth_delivery.gp001_TCSC_verba b 
+on ev.i_eventos = b.CD_VERBA
+set ev.valor_caracter = B.DS_INDICADOR
+where i_caracteristicas = 23905 and b.ds_indicador not in ('');
+
+update bethadba.eventos_prop_adic ev 
+left join tecbth_delivery.gp001_TCSC_verba b 
+on ev.i_eventos = b.CD_VERBA
+set ev.valor_caracter = b.CD_NATUREZA_TCE
+WHERE i_caracteristicas = 20358;
+
 update bethadba.eventos e 
 left join bethadba.eventos_prop_adic epc 
 on e.i_eventos = epc.i_eventos 
 set e.caracteristica = 'V'
-where epc.valor_caracter ='E'
-
+where epc.valor_caracter ='E';
 
 update bethadba.hist_eventos e 
 left join bethadba.eventos_prop_adic epc 
 on e.i_eventos = epc.i_eventos 
 set e.caracteristica = 'V'
-where epc.valor_caracter ='E'
+where epc.valor_caracter ='E';
 
 update bethadba.eventos e 
 left join bethadba.eventos_prop_adic epc 
 on e.i_eventos = epc.i_eventos 
 set e.caracteristica = 'F'
-where epc.valor_caracter ='P'
+where epc.valor_caracter ='P';
 
 update bethadba.hist_eventos e 
 left join bethadba.eventos_prop_adic epc 
 on e.i_eventos = epc.i_eventos 
 set e.caracteristica = 'F'
-where epc.valor_caracter ='P'
+where epc.valor_caracter ='P';
+
+
 
 
 -- PARTE 8 BTHSC-133910
