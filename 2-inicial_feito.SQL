@@ -1,4 +1,4 @@
-#teste
+#teste2
 
 insert into bethadba.parametros(i_ponto,i_unidade,maskunidade,autoandamento,tiponaoresp,taxasnaopagas,diasant,diasantouv,andouvidoria,maskouvidoria,maskatendimento,estornar_enc,protecao_ole,
 							    senha_ole,excluir_parec,mail_andamento,mail_padrao,mail_direto,mail_server,mail_protocol,usa_grupo_solicitacoes,grupo_solicitacoes_padrao,i_aplicacao,
