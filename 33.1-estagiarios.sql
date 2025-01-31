@@ -45,3 +45,5 @@ begin
 	
 	end for;
 end;
+
+call bethadba.pg_setoption('fire_triggers','on');	
