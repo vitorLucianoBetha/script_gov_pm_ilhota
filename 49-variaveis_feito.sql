@@ -83,3 +83,78 @@ begin
 	end for;
 end;
 commit;
+
+
+-- Movimento de variáveis
+
+CALL bethadba.dbp_conn_gera(1, 2019, 300);
+CALL bethadba.pg_setoption('wait_for_commit', 'on');
+CALL bethadba.pg_habilitartriggers('off');
+COMMIT;
+
+
+begin
+	// *****  Tabela bethadba.variaveis
+	declare w_i_funcionarios integer;
+	declare w_i_tipos_proc smallint;
+	declare w_dt_final date;
+	declare w_observacao char(50);
+	
+	// *****  Variaveis auxiliares
+	declare w_dt_admissao date;
+	ooLoop: for oo as cnv_variaveis dynamic scroll cursor for
+		select 1 as w_i_entidades,
+		CdMatricula as w_CdMatricula,
+		SqContrato as w_SqContrato,
+		CdVerba as w_i_eventos,
+		tpcalculo as w_tpCalculo,
+		date(dtCompetencia) as w_dt_inicial,
+		cast(VlMovimento as decimal(12,2)) as w_vlr_variavel,
+		1 as w_i_processamentos
+		from tecbth_delivery.gp001_movimentovariavel   
+		order by 1,2,3 asc				
+	do
+
+		set w_dt_admissao=null;
+		
+		set w_i_funcionarios=cast(w_cdMatricula as integer);
+		
+		if w_tpCalculo in (1,9,11) then 
+			set w_i_tipos_proc=11
+		elseif w_tpCalculo in (2,10) then 
+			set w_i_tipos_proc=42
+		elseif w_tpCalculo = 3 then 
+			set w_i_tipos_proc=80
+		elseif w_tpCalculo = 5 then set 
+			w_i_tipos_proc=51
+		elseif w_tpCalculo in(6,7) then 
+			set w_i_tipos_proc=52
+		elseif w_tpCalculo = 8 then 
+			set w_i_tipos_proc=41
+		end if;
+		
+		if w_i_tipos_proc is null or w_i_tipos_proc = 0 then
+			set w_i_tipos_proc=11
+		end if;
+		
+		select first i_eventos 
+		into w_i_eventos 
+		from tecbth_delivery.evento_aux 
+		where evento = w_i_eventos
+		and	retificacao = 'B' 
+		and	resc_mov = 'N' 
+		and	i_entidades = w_i_entidades;
+		
+	
+		select dt_admissao 
+		into w_dt_admissao 
+		from bethadba.funcionarios 
+		where i_entidades = w_i_entidades 
+		and i_funcionarios = w_i_funcionarios;
+		
+		insert into bethadba.variaveis(i_entidades,i_funcionarios,i_tipos_proc,i_processamentos,i_eventos,dt_inicial,dt_final,vlr_variavel)
+		values (w_i_entidades,w_i_funcionarios,w_i_tipos_proc,w_i_processamentos,w_i_eventos,w_dt_inicial,w_dt_inicial,w_vlr_variavel);
+		
+	end for;
+end;
+commit;

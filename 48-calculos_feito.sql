@@ -238,7 +238,7 @@ on m.i_eventos = e.i_eventos
 set m.compoe_liq = e.compoe_liq;
 
 -- Exclui eventos não informativos das folhas
-delete from bethadba.movimentos where i_eventos in (1,128,243) and i_tipos_proc in (51,52);
+delete from bethadba.movimentos where i_eventos in (1,128,243, 301) and i_tipos_proc in (51,52);
 
 
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
@@ -278,7 +278,7 @@ from bethadba.rescisoes;
 
 -- Atualiza férias
 
-delete from bethadba.movimentos where i_tipos_proc = 80 and i_eventos in (1,243,138,35, 393);
+delete from bethadba.movimentos where i_tipos_proc = 80 and i_eventos in (1,12,63,68,243,138,35, 393);
 
 -- bethadba.ferias_proc | bethadba.processamentos
 insert into bethadba.processamentos on existing skip
@@ -308,7 +308,7 @@ i_ferias,
 left(dt_gozo_ini, 7) + '-01' as i_competencias,
 1 as i_processamentos,
 1 as mes_ferias
-from bethadba.ferias
+from bethadba.ferias;
 
 
 -- Atualiza folhas finais para envio
