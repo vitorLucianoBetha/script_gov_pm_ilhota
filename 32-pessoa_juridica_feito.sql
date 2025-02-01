@@ -107,3 +107,126 @@ begin
 	end for;
 end
 ;
+
+------- CADASTRO DE INSTITUIÇÃO DE ENSINO PARA ESTAGIARIO
+
+CALL bethadba.dbp_conn_gera(1, 2019, 300);
+CALL bethadba.pg_setoption('wait_for_commit','on');
+CALL bethadba.pg_habilitartriggers('off');
+commit;
+
+if  exists (select 1 from sys.sysprocedure where creator = (select user_id from sys.sysuserperms where user_name = current user) and proc_name = 'cnv_estagios') then
+	drop procedure cnv_estagios;
+end if;
+
+begin
+	// *****  Tabela bethadba.pessoas
+	declare w_i_pessoas integer;
+	declare w_dv tinyint;
+	
+	// *****  Tabela bethadba.pessoas_enderecos
+	declare w_tipo_endereco char(1);
+	declare w_i_ruas integer;
+	
+	ooLoop: for oo as cnv_estagios dynamic scroll cursor for
+		select distinct B.ID as w_id,
+					B.NmEntidade as w_nome,
+					isnull(left(B.NrFone,2),47) as w_ddd,
+					SUBSTRING(B.NrFone, 3, DATALENGTH(B.NrFone)) as w_telefone,
+					B.NrEndereco as w_numero,
+					B.NrInscricao as w_cnpj
+		from tecbth_delivery.gp001_FuncionarioEstagio A
+		join tecbth_delivery.gp001_ENTIDADEEXTERNA B on A.ID_ENT_EXT_INST_ENSINO = B.ID 
+	do
+		// *****  Tabela bethadba.pessoas
+		set w_i_pessoas = null;
+		set w_dv = null;
+		
+		// *****  Tabela bethadba.pessoas_enderecos
+		set w_tipo_endereco = null;
+		set w_i_ruas = null;
+		
+		
+		// *****  Converte tabela bethadba.pessoas
+		select coalesce(max(i_pessoas),0)+1 
+		into w_i_pessoas 
+		from bethadba.pessoas;
+		
+		set w_dv=bethadba.dbf_calcmod11(w_i_pessoas);
+		
+
+		insert into bethadba.pessoas(i_pessoas,dv,nome,nome_fantasia,tipo_pessoa,ddd,telefone,fax,ddd_cel,celular,inscricao_municipal,email)on existing skip 
+		values(w_i_pessoas,w_dv,w_nome,null,'J',w_ddd,w_telefone,null,null,null,null,null);
+		
+		// *****  Converte tabela bethadba.pessoas_juridicas		
+		insert into bethadba.pessoas_juridicas(i_pessoas,i_naturezas,responsavel,cnpj,inscricao_estadual) 
+		values (w_i_pessoas,null,null,w_cnpj,null);
+		
+		// *****  Converte tabela tecbth_delivery.pessoa_aux
+		insert into tecbth_delivery.antes_depois 
+		values('E',null,w_id,null,null,w_i_pessoas,null,null,null,null);
+	
+	end for;
+end;
+
+------ CADASTRO DE AGENTE PARA ESTAGIARIO
+
+CALL bethadba.dbp_conn_gera(1, 2019, 300);
+CALL bethadba.pg_setoption('wait_for_commit','on');
+CALL bethadba.pg_habilitartriggers('off');
+commit;
+
+if  exists (select 1 from sys.sysprocedure where creator = (select user_id from sys.sysuserperms where user_name = current user) and proc_name = 'cnv_agente') then
+	drop procedure cnv_agente;
+end if;
+
+begin
+	// *****  Tabela bethadba.pessoas
+	declare w_i_pessoas integer;
+	declare w_dv tinyint;
+	
+	// *****  Tabela bethadba.pessoas_enderecos
+	declare w_tipo_endereco char(1);
+	declare w_i_ruas integer;
+	
+	ooLoop: for oo as cnv_agente dynamic scroll cursor for
+		select distinct B.ID as w_id,
+					B.NmEntidade as w_nome,
+					isnull(left(B.NrFone,2),47) as w_ddd,
+					SUBSTRING(B.NrFone, 3, DATALENGTH(B.NrFone)) as w_telefone,
+					B.NrEndereco as w_numero,
+					B.NrInscricao as w_cnpj
+		from tecbth_delivery.gp001_FuncionarioEstagio A
+		join tecbth_delivery.gp001_ENTIDADEEXTERNA B on A.ID_ENT_EXT_AGENTE_INTEGR = B.ID 
+	do
+		// *****  Tabela bethadba.pessoas
+		set w_i_pessoas = null;
+		set w_dv = null;
+		
+		// *****  Tabela bethadba.pessoas_enderecos
+		set w_tipo_endereco = null;
+		set w_i_ruas = null;
+		
+		
+		// *****  Converte tabela bethadba.pessoas
+		select coalesce(max(i_pessoas),0)+1 
+		into w_i_pessoas 
+		from bethadba.pessoas;
+		
+		set w_dv=bethadba.dbf_calcmod11(w_i_pessoas);
+		
+
+		insert into bethadba.pessoas(i_pessoas,dv,nome,nome_fantasia,tipo_pessoa,ddd,telefone,fax,ddd_cel,celular,inscricao_municipal,email)on existing skip 
+		values(w_i_pessoas,w_dv,w_nome,null,'J',w_ddd,w_telefone,null,null,null,null,null);
+		
+		// *****  Converte tabela bethadba.pessoas_juridicas		
+		insert into bethadba.pessoas_juridicas(i_pessoas,i_naturezas,responsavel,cnpj,inscricao_estadual) 
+		values (w_i_pessoas,null,null,w_cnpj,null);
+		
+		// *****  Converte tabela tecbth_delivery.pessoa_aux
+		insert into tecbth_delivery.antes_depois 
+		values('E',null,w_id,null,null,w_i_pessoas,null,null,null,null);
+	
+	end for;
+end
+;
