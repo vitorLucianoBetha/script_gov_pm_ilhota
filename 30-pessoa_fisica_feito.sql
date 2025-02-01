@@ -37,21 +37,76 @@ begin
     declare w_valida_Pis integer;
     declare w_dt_alteracoes date;
 	ooLoop: for oo as cnv_pessoas dynamic scroll cursor for
-		select  1 as w_i_entidades,Pessoa.CdPessoa as w_CdPessoa,trim(upper(nmPessoa)) as w_nome,right(fu_tirachars(trim(nrddd),','),2) as w_ddd,fu_tirachars(trim(NrFone),'-') as w_telefone,
-			    cdCidadeNascimento as w_cdCidadeNascimento,sgEstadoNascimento as w_sgEstadoNascimento,date(dtNascimento) as w_dt_nascimento,tpSexo as w_sexo,cdEstadoCivil as w_cdEstadoCivil,
-			    cdNacionalidade as w_cdNacionalidade,trim(NrIdentidade) as w_rg,trim(NmOrgaoIdentidade) as w_orgao_emis_rg,DtExpedicaoIdentidade as w_dt_emis_rg,SgEstadoIdentidade as w_SgEstadoIdentidade,
-			    cast(NrPis as decimal(15)) as w_num_pis,dtCadastroPisPasep as w_dt_pis,cast(NrCpf as decimal(15)) as w_NrCpf,trim(NrCarteiraProf) as w_carteira_prof,trim(NrSerieCarteiraProf) as w_serie_cart,
-			    DtExpedicaoCartProf as w_dt_emis_carteira,sgEstadoCarteira as w_sgEstadoCarteira,trim(NmPai) as w_nome_pai,trim(NmMae) as w_nome_mae,trim(NrZonaEleitoral) as w_zona_eleitoral,
-			    trim(NrSecaoEleitoral) as w_secao_eleitoral,cast(NrTituloEleitoral as decimal(15)) as w_titulo_eleitor,trim(NrCarteiraReservista) as w_num_reservista,TipoSanguineo as w_TipoSanguineo,
-			    FatorRh as w_FatorRh,trim(NrCarteiraHabilitacao) as w_cnh,dtValidadeHabilitacao as w_dt_vencto_cnh,cdRacaCor as w_cdRacaCor,cdDeficiente as w_cdDeficiente,cdUf as w_cdUf,cdMunicipio as w_cdMunicipio, 
-			    trim(DsComplLogradouro) as w_complemento,NrEndereco as w_numero,dtAnoChegada as w_ano_chegada,trim(nrIdentidadeEstrangeiro) as w_nrIdentidadeEstrangeiro,date(dtValidadeIdentEstrang) as w_dtValidadeIdentEstrang,
-			    trim(tpVistoEstrangeiro) as w_tpVistoEstrangeiro,trim(nrCartProfEstrangeiro) as w_nrCartProfEstrangeiro,trim(nrSerieCartProfEstrang) as w_nrSerieCartProfEstrang,date(dtExpedCartProfEstrang) as w_dtExpedCartProfEstrang,
-			    date(dtValidadeCartProfEstrang) as w_dtValidadeCartProfEstrang,CdLogradouro as w_CdLogradouro,trim(DsEndereco) as w_nome_rua,CdCep as w_cep,CdBairro as w_CdBairro,InDependente as w_InDependente,
-			    CdTipoDeficiencia as w_CdTipoDeficiencia,NrCelular as w_celular,DtObito as w_dt_obito,NmCartorio as w_cartorio_reg,NrRegistro as w_NrRegistro,Email as w_EmailFunc,EmailPessoal as w_EmailPessoal,
-			    dsCategoriaHabilitacao as w_dsCategoriaHabilitacao,inCertidao as w_inCertidao,nrFolha as w_nrFolha,nrLivro as w_nrLivro,trim(dsApelido) as w_nome_fantasia,null as w_NrFoneFax,2 as w_TpInscricao
-		from gp001_pessoa as pessoa,gp001_enderecopessoa as enderecopessoa 
-       where pessoa.cdpessoa *= enderecopessoa.cdpessoa 
-	   order by 1,2 asc
+		select  1 as w_i_entidades,
+				Pessoa.CdPessoa as w_CdPessoa,
+				trim(upper(nmPessoa)) as w_nome,
+				right(tecbth_delivery.fu_tirachars(trim(nrddd),','),2) as w_ddd,
+				tecbth_delivery.fu_tirachars(trim(NrFone),'-') as w_telefone,
+			    cdCidadeNascimento as w_cdCidadeNascimento,
+			    sgEstadoNascimento as w_sgEstadoNascimento,
+			    date(dtNascimento) as w_dt_nascimento,
+			    tpSexo as w_sexo,
+			    cdEstadoCivil as w_cdEstadoCivil,
+			    cdNacionalidade as w_cdNacionalidade,
+			    trim(NrIdentidade) as w_rg,
+			    trim(NmOrgaoIdentidade) as w_orgao_emis_rg,
+			    DtExpedicaoIdentidade as w_dt_emis_rg,
+			    SgEstadoIdentidade as w_SgEstadoIdentidade,
+			    cast(NrPis as decimal(15)) as w_num_pis,
+			    dtCadastroPisPasep as w_dt_pis,
+			    cast(NrCpf as decimal(15)) as w_NrCpf,
+			    trim(NrCarteiraProf) as w_carteira_prof,
+			    trim(NrSerieCarteiraProf) as w_serie_cart,
+			    DtExpedicaoCartProf as w_dt_emis_carteira,
+			    sgEstadoCarteira as w_sgEstadoCarteira,
+			    trim(NmPai) as w_nome_pai,
+			    trim(NmMae) as w_nome_mae,
+			    trim(NrZonaEleitoral) as w_zona_eleitoral,
+			    trim(NrSecaoEleitoral) as w_secao_eleitoral,
+			    cast(NrTituloEleitoral as decimal(15)) as w_titulo_eleitor,
+			    trim(NrCarteiraReservista) as w_num_reservista,
+			    TipoSanguineo as w_TipoSanguineo,
+			    FatorRh as w_FatorRh,
+			    trim(NrCarteiraHabilitacao) as w_cnh,
+			    dtValidadeHabilitacao as w_dt_vencto_cnh,
+			    dsCategoriaHabilitacao as w_categoria_cnh,
+			    cdRacaCor as w_cdRacaCor,
+			    cdDeficiente as w_cdDeficiente,
+			    cdUf as w_cdUf,
+			    cdMunicipio as w_cdMunicipio, 
+			    trim(DsComplLogradouro) as w_complemento,
+			    NrEndereco as w_numero,
+			    dtAnoChegada as w_ano_chegada,
+			    trim(nrIdentidadeEstrangeiro) as w_nrIdentidadeEstrangeiro,
+			    date(dtValidadeIdentEstrang) as w_dtValidadeIdentEstrang,
+			    trim(tpVistoEstrangeiro) as w_tpVistoEstrangeiro,
+			    trim(nrCartProfEstrangeiro) as w_nrCartProfEstrangeiro,
+			    trim(nrSerieCartProfEstrang) as w_nrSerieCartProfEstrang,
+			    date(dtExpedCartProfEstrang) as w_dtExpedCartProfEstrang,
+			    date(dtValidadeCartProfEstrang) as w_dtValidadeCartProfEstrang,
+			    CdLogradouro as w_CdLogradouro,
+			    trim(DsEndereco) as w_nome_rua,
+			    CdCep as w_cep,
+			    CdBairro as w_CdBairro,
+			    InDependente as w_InDependente,
+			    CdTipoDeficiencia as w_CdTipoDeficiencia,
+			    NrCelular as w_celular,
+			    DtObito as w_dt_obito,
+			    NmCartorio as w_cartorio_reg,
+			    NrRegistro as w_NrRegistro,
+			    Email as w_EmailFunc,
+			    EmailPessoal as w_EmailPessoal,
+			    dsCategoriaHabilitacao as w_dsCategoriaHabilitacao,
+			    inCertidao as w_inCertidao,
+			    nrFolha as w_nrFolha,
+			    nrLivro as w_nrLivro,
+			    trim(dsApelido) as w_nome_fantasia,
+			    null as w_NrFoneFax,
+			    2 as w_TpInscricao
+		from tecbth_delivery.gp001_pessoa as pessoa,
+		tecbth_delivery.gp001_enderecopessoa as enderecopessoa 
+        where pessoa.cdpessoa = enderecopessoa.cdpessoa 
+	    order by 1,2 asc
 	do
 		// *****  Tabela bethadba.pessoas
         set w_valida_cpf = null; 
@@ -167,6 +222,10 @@ begin
 		
 		if w_sexo = '' then
 			set w_sexo='M'
+		end if;
+
+		if w_categoria_cnh = '' then
+			set w_categoria_cnh = null
 		end if;
 		
 		if w_CdEstadoCivil in(5) then
@@ -322,7 +381,7 @@ begin
 			insert into bethadba.pessoas_fis_compl(i_pessoas,nome_pai,nome_mae,profissao_pai,profissao_mae,cartorio_reg,num_reg,zona_eleitoral,secao_eleitoral,titulo_eleitor,num_reservista,
 												grupo_sanguineo,fator_rh,doador,cnh,categoria_cnh,dt_vencto_cnh,raca,estatura,peso,cor_olhos)on existing skip 
 			values(w_i_pessoas,w_nome_pai,w_nome_mae,w_profissao_pai,w_profissao_mae,w_cartorio_reg,w_num_reg,w_zona_eleitoral,w_secao_eleitoral,w_titulo_eleitor,w_num_reservista,w_grupo_sanguineo,
-				w_fator_rh,'N',w_cnh,null,w_dt_vencto_cnh,w_raca,null,null,null);
+				w_fator_rh,'N',w_cnh,w_categoria_cnh,w_dt_vencto_cnh,w_raca,null,null,null);
 	
 			// *****  Converte tabela bethadba.pessoas_fis_obito
 			if w_dt_obito is not null then
