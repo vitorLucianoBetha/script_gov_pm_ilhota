@@ -90,7 +90,8 @@ begin
 			    CdBairro as w_CdBairro,
 			    InDependente as w_InDependente,
 			    CdTipoDeficiencia as w_CdTipoDeficiencia,
-			    NrCelular as w_celular,
+			    left(nrCelular,2) as w_ddd_cel,
+			    SUBSTRING(nrCelular, 3, DATALENGTH(nrCelular)) as w_celular,
 			    DtObito as w_dt_obito,
 			    NmCartorio as w_cartorio_reg,
 			    NrRegistro as w_NrRegistro,
@@ -165,6 +166,9 @@ begin
 		if w_telefone in('0', '') then
 			set w_telefone=null
 		end if;
+		if w_ddd_cel in('0','') then
+			set w_ddd_cel=null
+		end if;
 		if w_celular in('0','') then
 			set w_celular=null
 		end if;
@@ -195,7 +199,7 @@ begin
         end if;
 		
 		insert into bethadba.pessoas(i_pessoas,dv,nome,nome_fantasia,tipo_pessoa,ddd,telefone,fax,ddd_cel,celular,inscricao_municipal,email)/*on existing skip*/
-		values (w_i_pessoas,w_dv,w_nome,w_nome_fantasia,w_tipo_pessoa,w_ddd,w_telefone,null,null,w_celular,null,w_email);
+		values (w_i_pessoas,w_dv,w_nome,w_nome_fantasia,w_tipo_pessoa,w_ddd,w_telefone,null,w_ddd_cel,w_celular,null,w_email);
 		
 		message 'Pes.: '||w_i_pessoas||' Dt.: '||w_dt_nascimento||' Nom.: '||w_nome to client;
 		
