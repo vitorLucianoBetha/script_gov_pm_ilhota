@@ -238,8 +238,7 @@ on m.i_eventos = e.i_eventos
 set m.compoe_liq = e.compoe_liq;
 
 -- Exclui eventos não informativos das folhas
-delete from bethadba.movimentos where i_eventos in (1,128,243, 301) and i_tipos_proc in (51,52);
-
+delete from bethadba.movimentos where i_eventos in (1,128,243,242 ,301, 393, 12) and i_tipos_proc in (51,52);
 
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
 CALL bethadba.pg_setoption('wait_for_commit', 'on');
