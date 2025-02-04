@@ -38,11 +38,25 @@ begin
 	declare w_digitou_form_aux char(1);
 	declare w_classif_evento_aux tinyint;
 	ooLoop: for oo as cnv_movimentos dynamic scroll cursor for
-		select   1 as w_i_entidades,cdMatricula as w_cdMatricula,sqContrato as w_sqContrato,dtCompetencia as w_dtCompetencia,tpcalculo as w_tpcalculo,sqHabilitacao as w_sqHabilitacao,
-			cdVerba as w_cdVerba,inRetificacao as w_inRetificacao,dtPagamento as w_dtPagamento,fu_convdecimal(tira_caracter_1(vlComplemento),0) as w_vlr_inf,
-			cast(vlMensal as decimal(12,2)) as w_vlr_calc,cast(vlAuxiliar as decimal(12,2)) as w_vlAuxiliar,
-			cast(vlIntegral as decimal(12,2)) as w_vlIntegral 
-		from tecbth_delivery.gp001_fichafinanceira where dtCompetencia > '2020-01-01'
+		select 1 as w_i_entidades,
+			cdMatricula as w_cdMatricula,
+			sqContrato as w_sqContrato,
+			dtCompetencia as w_dtCompetencia,
+			tpcalculo as w_tpcalculo,
+			sqHabilitacao as w_sqHabilitacao,
+			f.cdVerba as w_cdVerba,
+			inRetificacao as w_inRetificacao,
+			dtPagamento as w_dtPagamento,
+			tecbth_delivery.fu_convdecimal(tecbth_delivery.tira_caracter_1(vlComplemento),0) as w_vlr_inf,
+			cast(vlMensal as decimal(12,2)) as w_vlr_calc,
+			cast(vlAuxiliar as decimal(12,2)) as w_vlAuxiliar,
+			cast(vlIntegral as decimal(12,2)) as w_vlIntegral,
+			if v.TpCategoria in ('D','P') then 'S' else 'N' endif as w_compoe_liq,
+			v.TpCategoria as w_tipo_pd
+		from tecbth_delivery.gp001_fichafinanceira f
+		join tecbth_delivery.gp001_VERBA v on f.cdVerba = v.CdVerba
+		where f.sqHabilitacao = 1
+		order by 1, 2, 4, 9 asc
 	do
 		
 		// *****  Tabela bethadba.movimentos
@@ -52,7 +66,6 @@ begin
 		set w_i_funcionarios = null;
 		set w_i_eventos = null;
 		set w_tipo_pd = null;
-		set w_compoe_liq = null;
 		set w_classif_evento = null;
 		set w_mov_resc = null;
 		
@@ -123,7 +136,7 @@ begin
 			set w_i_processamentos=1;
 
 
-	
+			
 			if not w_cdVerba = any(select   evento from tecbth_delivery.evento_aux where tipo_pd = 'F' and w_i_entidades = w_i_entidades  ) then
 				if not exists(select distinct  1 from tecbth_delivery.evento_aux where evento = w_cdVerba and retificacao = w_inRetificacao and w_i_entidades = w_i_entidades) then
 					if w_inRetificacao in('C','D') then
@@ -157,18 +170,19 @@ begin
 
 
             select distinct i_eventos
-		into w_i_eventos 
- from tecbth_delivery.evento_aux 
+			into w_i_eventos 
+ 			from tecbth_delivery.evento_aux 
 			where evento  = w_cdVerba 
 			and retificacao = w_inRetificacao 
 			and	resc_mov = 'N' 
 			and	i_entidades = w_i_entidades;
 
-
-select first tipo_pd,compoe_liq,classif_evento 
-			into w_tipo_pd,w_compoe_liq,w_classif_evento 
-		   from bethadba.eventos  
-			where i_eventos = w_i_eventos;
+			if w_tipo_pd not in ('D', 'P') then
+				select first tipo_pd,classif_evento 
+							into w_tipo_pd,w_classif_evento 
+						from bethadba.eventos  
+							where i_eventos = w_i_eventos;
+			end if;
 	
 
 
@@ -214,8 +228,7 @@ select first tipo_pd,compoe_liq,classif_evento
 				
 				message 'Ent.: '||w_i_entidades||' Tip.: '||w_i_tipos_proc||' Com.: '||w_i_competencias||' Pro.: '||w_i_processamentos||' Fun.: '||w_i_funcionarios to client;
 					
-				insert into  bethadba.dados_calc(i_entidades,i_tipos_proc,i_competencias,i_processamentos,i_funcionarios,vlr_proventos,vlr_descontos,gerado_emp,movto_anterior,dt_pagto,
-												i_processamentos_lotes)on existing skip
+				insert into  bethadba.dados_calc(i_entidades,i_tipos_proc,i_competencias,i_processamentos,i_funcionarios,vlr_proventos,vlr_descontos,gerado_emp,movto_anterior,dt_pagto,i_processamentos_lotes)on existing skip
 				values (w_i_entidades,w_i_tipos_proc,w_i_competencias,w_i_processamentos,w_i_funcionarios,0.0,0.0,'N','N',w_dt_pagto,w_i_processamentos_lotes);
 				
 				// **** Movimentos
