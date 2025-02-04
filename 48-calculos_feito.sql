@@ -251,8 +251,7 @@ on m.i_eventos = e.i_eventos
 set m.compoe_liq = e.compoe_liq;
 
 -- Exclui eventos não informativos das folhas
-delete from bethadba.movimentos where i_eventos in (1,128,243, 301) and i_tipos_proc in (51,52);
-
+delete from bethadba.movimentos where i_eventos in (1,128,243,242 ,301, 393, 12) and i_tipos_proc in (51,52);
 
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
 CALL bethadba.pg_setoption('wait_for_commit', 'on');
@@ -347,5 +346,14 @@ set vlr_proventos = (select coalesce(sum(vlr_calc),0)
 
 commit;
 
+-- BTHSC-136244
 
+update bethadba.movimentos set compoe_liq = 'N', mov_resc = 'N' where i_funcionarios in (87211) and i_eventos in (1245, 138);
 
+update bethadba.movimentos set mov_resc = 'S', i_competencias = '2024-02-01' where i_eventos = 501 and i_funcionarios = 86193 and i_competencias = '2024-01-01';
+update bethadba.movimentos set mov_resc = 'N', i_competencias = '2024-02-01' where i_eventos = 501 and i_funcionarios = 86193 and i_competencias = '2024-01-01';
+
+update bethadba.movimentos set compoe_liq = 'S', mov_resc = 'N' where i_funcionarios in (87211) and i_eventos in (1,269,509,517,519,523,526,528,539,541,567,568,952)
+
+update bethadba.movimentos set mov_resc = 'S', i_competencias = '2024-02-01' where i_eventos = 501 and i_funcionarios = 86193 and i_competencias = '2024-01-01';
+update bethadba.movimentos set mov_resc = 'N', i_competencias = '2024-02-01' where i_eventos = 501 and i_funcionarios = 86193 and i_competencias = '2024-01-01';
