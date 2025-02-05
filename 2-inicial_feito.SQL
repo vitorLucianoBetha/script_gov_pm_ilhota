@@ -40,3 +40,15 @@ null as i_atos
 from  gp001_inss ,gp001_IR
 where gp001_inss.cdTabelaIR = gp001_IR.cdTabelaIR
 ORDER BY dtReferencia DESC, sqIntervalo
+
+
+--BTHSC-136265
+--Bug em Plano de Previdencia
+CALL bethadba.dbp_conn_gera(1, 2019, 300);
+CALL bethadba.pg_setoption('wait_for_commit','on');
+CALL bethadba.pg_habilitartriggers('off');
+call bethadba.pg_setoption('fire_triggers','off');
+COMMIT;
+update  bethadba.planos_previd 
+set plano_segregacao = 0
+where plano_segregacao is null;
