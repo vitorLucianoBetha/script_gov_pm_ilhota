@@ -146,9 +146,9 @@ from gp001_CARGO  where cdcargo = w_cargos;
 		set w_tipo_func='A'
 		end if;
 		-- BTHSC-142741 Bug em Matrículas | Conselheiro Tutelar
-		if vinculos in (25) then 
-			set w_tipo_func='A'
-			set w_conselheiro = 'S'
+		if vinculos in (25) or w_cargos = 139 then 
+			set w_tipo_func='A';
+			set w_conselheiro = 'S';
 		end if;
 		--bug BTHSC-8074 Data da Posse
 		if w_dt_base is null then
