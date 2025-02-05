@@ -113,7 +113,7 @@ begin
 			values (w_i_entidades,w_i_ruas,w_i_bairros,w_i_cidades,1,w_apelido,w_cep,w_numero,w_complemento,w_i_entidades,w_ddd,w_telefone,w_fax,null,w_cnpj,8); 
 
 			insert into bethadba.hist_entidades(i_entidades,i_competencias, i_ruas,i_bairros,i_cidades,cep,numero,complemento,ddd,telefone,fax,email,cnpj, i_tipos_adm) 
-			values (w_i_entidades,'2024-01-01', w_i_ruas,w_i_bairros,w_i_cidades,w_cep,w_numero,w_complemento,w_ddd,w_telefone,w_fax,null,w_cnpj, 8); 
+			values (w_i_entidades,'2024-01-01', w_i_ruas,w_i_bairros,w_i_cidades,w_cep,w_numero,w_complemento,w_ddd,w_telefone,w_fax,w_email,w_cnpj, 8); 
 		
 			 		-- BUG BTHSC-8213
 		--BUG BTHSC-8194 CNAE incorreto
