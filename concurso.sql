@@ -21,7 +21,12 @@ begin
 		null as w_justificativa,
 		null as w_dt_encerra,
 		'M' as w_info_cand,
-		'C' as w_tipo_concurso
+		-- bug BTHSC-139782 Bug em Concursos e Processos Seletivos
+		(case cdTipoConcurso
+        when 0  then    'C'
+        ELSE 'P'
+        END)
+ as w_tipo_concurso
 		from tecbth_delivery.gp001_conc_concurso
 	do
 
