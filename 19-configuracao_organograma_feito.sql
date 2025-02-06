@@ -1,3 +1,10 @@
+CALL bethadba.dbp_conn_gera(1, 2019, 300);
+CALL bethadba.pg_setoption('wait_for_commit','on');
+CALL bethadba.pg_habilitartriggers('off');
+commit;
+
+--- ATENÇÃO PARA CADA BASE DIFERENTE DEVE SER ADEQUADO O CODIGO ABAIXO
+
 if  exists (select 1 from sys.sysprocedure where creator = (select user_id from sys.sysuserperms where user_name = current user) and proc_name = 'cnv_config_organ') then
 	drop procedure cnv_config_organ;
 end if
@@ -33,26 +40,51 @@ begin
 		values('O',w_i_entidades,w_cdOrganograma,null,null,w_i_config_organ,null,null,null,null);
 		
 	end for;
-end
-;
+end;
 
 -- BTHSC-59216 - ajustes de niveis - André
 
 insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
-values(1,1,'PM',1,'.',1)
-;
+values(1,1,'PM',2,'.',2);
 
 insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
-values(1,2,'DEPTO',1,'.',2)
-;
+values(1,2,'DEPTO',2,'.',4);
 
 insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
-values(1,3,'SECAO',1,'.',3)
-;
+values(2,1,'PM',2,'.',2);
 
 insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
-values(1,4,'LOCA',2,'.',5)
-;
+values(2,2,'DEPTO',2,'.',4);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(3,1,'PM',2,'.',2);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(3,2,'DEPTO',2,'.',4);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(102,1,'PM',2,'.',2);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(102,2,'DEPTO',2,'.',4);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(103,1,'PM',2,'.',2);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(103,2,'DEPTO',2,'.',4);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(104,1,'PM',2,'.',2);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(104,2,'DEPTO',2,'.',4);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(105,1,'PM',1,'.',1);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(105,2,'DEPTO',1,'.',1);
 
 
 
