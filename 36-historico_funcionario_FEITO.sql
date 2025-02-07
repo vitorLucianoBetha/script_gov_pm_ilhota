@@ -31,8 +31,8 @@ begin
 			dtFimContrato,
 			DtTransferencia,
 			Funcionario.cdLocal,
-			if Lotacao.CdOrganograma = 99 then 2 else 1 endif,
-			nivel1||nivel2||nivel3||nivel4,
+			if Lotacao.CdOrganograma = 99 then 2 else Lotacao.CdOrganograma endif,
+			nivel1||nivel2,--||nivel3||nivel4,
 			SqCartaoPonto,
 			Funcionario.dtRescisao
 		from tecbth_delivery.GP001_Funcionario as Funcionario,tecbth_delivery.GP001_HistoricoLotacao as HistoricoLotacao,tecbth_delivery.GP001_Lotacao as Lotacao,tecbth_delivery.GP001_Empresa as Empresa 
@@ -63,8 +63,8 @@ begin
 			dtFimContrato,
 			date(now(*)),
 			Funcionario.cdLocal,
-			if Lotacao.CdOrganograma = 99 then 2 else 1 endif,
-			nivel1||nivel2||nivel3||nivel4 ,
+		if Lotacao.CdOrganograma = 99 then 2 else Lotacao.CdOrganograma endif,
+			nivel1||nivel2,--||nivel3||nivel4,
 			SqCartaoPonto,
 			Funcionario.dtRescisao
 		from tecbth_delivery.GP001_funcionario as funcionario,tecbth_delivery.GP001_lotacao as lotacao,tecbth_delivery.GP001_Empresa as Empresa 
@@ -92,8 +92,8 @@ begin
 			dtFimContrato,
 			now(*),
 			Funcionario.cdLocal,
-			if Lotacao.CdOrganograma = 99 then 2 else 1 endif,
-			nivel1||nivel2||nivel3||nivel4,
+			if Lotacao.CdOrganograma = 99 then 2 else Lotacao.CdOrganograma endif,
+			nivel1||nivel2,--||nivel3||nivel4,
 			SqCartaoPonto,
 			Funcionario.dtRescisao
 		from tecbth_delivery.GP001_funcionario as funcionario, tecbth_delivery.GP001_lotacao as lotacao,tecbth_delivery.GP001_Empresa as Empresa 
