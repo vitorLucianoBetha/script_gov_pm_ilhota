@@ -142,7 +142,7 @@ from gp001_CARGO  where cdcargo = w_cargos;
 			set w_tipo_func='F'
 		end if;
 		--BUG BTHSC-8011 Não migrou registros de autonomos
-		if vinculos in (17, 52, 51) then 
+		if vinculos in (52, 51) then 
 		set w_tipo_func='A'
 		end if;
 		-- BTHSC-142741 Bug em Matrículas | Conselheiro Tutelar
