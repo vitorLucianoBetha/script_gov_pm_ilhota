@@ -156,7 +156,7 @@ from gp001_CARGO  where cdcargo = w_cargos;
 		end if;
 		
 		
-		if w_i_pessoas != 0 then
+		if w_cdPessoa != 0 then
 			message 'Ent.: '||w_i_entidades||' Fun.: '||w_i_funcionarios||' Pes.: '||w_i_pessoas||' Adm.: '||w_dt_admissao to client;
 			insert into bethadba.funcionarios(i_entidades,i_funcionarios,dv,i_pessoas,dt_admissao,tipo_admissao,categoria,dt_opcao_fgts,conta_fgts,dt_base,contrib_sindical,i_sindicatos,conta_vaga,
 											sai_rais,tipo_func,tipo_pens,conta_adicional,conta_licpremio,conta_temposerv,lei_contrato,codigo_esocial,tipo_provimento,conselheiro_tutelar)on existing skip
