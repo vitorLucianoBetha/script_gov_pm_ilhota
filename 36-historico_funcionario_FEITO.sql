@@ -549,3 +549,7 @@ begin
 	end loop L_item3;
 	close cur_conver3
 end;
+
+insert into bethadba.horarios_ponto (i_entidades,i_horarios_ponto,descricao,classificacao,tipo,minima_hora,jornada_diaria,tolerancia_alocacao,enviar_esocial)
+select 1,i_horarios,descricao,'N','F',entrada,1,1,'S'
+ from bethadba.horarios
