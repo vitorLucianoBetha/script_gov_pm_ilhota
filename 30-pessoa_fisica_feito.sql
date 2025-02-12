@@ -104,9 +104,9 @@ begin
 			    trim(dsApelido) as w_nome_fantasia,
 			    null as w_NrFoneFax,
 			    2 as w_TpInscricao
-		from tecbth_delivery.gp001_pessoa as pessoa,
+		from tecbth_delivery.gp001_pessoa as pessoa left join 
 		tecbth_delivery.gp001_enderecopessoa as enderecopessoa 
-        where pessoa.cdpessoa = enderecopessoa.cdpessoa 
+        on( pessoa.cdpessoa = enderecopessoa.cdpessoa )
 	    order by 1,2 asc
 	do
 		// *****  Tabela bethadba.pessoas

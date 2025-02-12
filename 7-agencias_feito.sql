@@ -9,10 +9,7 @@ values (800,'CONVERSÃO','CONV',null,null,'A')
 
 
 
-if  exists (select 1 from sys.sysprocedure where creator = (select user_id from sys.sysuserperms where user_name = current user) and proc_name = 'cnv_agencias') then
-	drop procedure cnv_agencias;
-end if
-;
+
 begin
 	// *****  Tabela bethadba.agencias
 	declare w_dv_agencia char(2);
@@ -23,9 +20,10 @@ begin
 		select 1 as w_i_entidades,Agencia.NrBanco as w_i_bancos,Agencia.NrAgencia as w_i_agencias,trim(Agencia.NmAgencia) as w_nome,
 			   trim(EnderecoAgencia.DsEndereco) as w_nome_rua,trim(EnderecoAgencia.DsComplemento) as w_complemento,EnderecoAgencia.CdLogradouro as w_CdLogradouro,EnderecoAgencia.cdUF as w_cdUF,
 			   EnderecoAgencia.cdBairro as w_cdBairro,(EnderecoAgencia.cdUF *100000)+EnderecoAgencia.CdMunicipio as w_i_cidades,EnderecoAgencia.CdMunicipio as w_CdMunicipio, Agencia.dgagencia as w_dgagencia
-		from tecbth_delivery.gp001_AGENCIA as Agencia,tecbth_delivery.gp001_EnderecoAgencia as EnderecoAgencia
-		where Agencia.NrBanco = EnderecoAgencia.NrBanco 
-		and Agencia.NrAgencia = EnderecoAgencia.NrAgencia  
+		FROM tecbth_delivery.gp001_AGENCIA AS Agencia
+        LEFT JOIN tecbth_delivery.gp001_EnderecoAgencia AS EnderecoAgencia 
+     ON Agencia.NrBanco = EnderecoAgencia.NrBanco 
+     AND Agencia.NrAgencia = EnderecoAgencia.NrAgencia
 		order by 1,2,3 asc	
 	do
 		// *****  Inicializa Variaveis
@@ -77,7 +75,7 @@ begin
 		else
 			select first depois_1 
 			into w_i_ruas 
-			from antes_depois 
+			from tecbth_delivery.antes_depois 
 			where tipo = 'R' 
 			and antes_1 = w_i_cidades 
 			and antes_2 = w_CdLogradouro
