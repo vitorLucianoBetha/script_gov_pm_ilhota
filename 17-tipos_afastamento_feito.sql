@@ -92,3 +92,34 @@ update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 8 where i_t
 update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 9 where i_tipos_afast = 41;
 update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 10 where i_tipos_afast = 42;
 update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 11 where i_tipos_afast = 43;
+
+-- atualizando as classificações de acordo com o depara repassado pela implantação
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 22;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 23;
+update bethadba.tipos_afast set classif = 4 where i_tipos_afast = 24;
+update bethadba.tipos_afast set classif = 5 where i_tipos_afast = 25;
+update bethadba.tipos_afast set classif = 6 where i_tipos_afast = 26;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 27;
+update bethadba.tipos_afast set classif = 5 where i_tipos_afast = 28;
+update bethadba.tipos_afast set classif = 9 where i_tipos_afast = 29;
+update bethadba.tipos_afast set classif = 14 where i_tipos_afast = 30;
+update bethadba.tipos_afast set classif = 5 where i_tipos_afast = 31;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 32;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 33;
+update bethadba.tipos_afast set classif = 11 where i_tipos_afast = 35;
+update bethadba.tipos_afast set classif = 7 where i_tipos_afast = 36;
+update bethadba.tipos_afast set classif = 18 where i_tipos_afast = 38;
+update bethadba.tipos_afast set classif = 18 where i_tipos_afast = 39;
+update bethadba.tipos_afast set classif = 18 where i_tipos_afast = 40;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 41;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 42;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 43;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 44;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 45;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 46;
+update bethadba.tipos_afast set classif = 5 where i_tipos_afast = 47;
+update bethadba.tipos_afast set classif = 21 where i_tipos_afast = 49;
+update bethadba.tipos_afast set classif = 14 where i_tipos_afast = 51;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 52;
+update bethadba.tipos_afast set classif = 21 where i_tipos_afast = 56;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 59;
