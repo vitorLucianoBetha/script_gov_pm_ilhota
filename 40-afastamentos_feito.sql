@@ -1,18 +1,36 @@
-
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
 CALL bethadba.pg_setoption('wait_for_commit', 'on');
 CALL bethadba.pg_habilitartriggers('off');
 COMMIT;
+
 begin
 	// *****  Tabela bethadba.afastamentos
 	declare w_i_funcionarios integer;
 	declare w_i_tipos_afast smallint;
 
 	ooLoop: for oo as cnv_afastamentos dynamic scroll cursor for
-		select 1 as w_i_entidades,cdMatricula  as w_CdMatricula,SqContrato as w_SqContrato,date(DtInicioAfastamento) as w_dt_afastamento,date(DtFimAfastamento) as w_dt_ultimo_dia
-,
-			   isnull(CdMotivoAfastamento, 7) as w_CdMotivoAfastamento 
-from   tecbth_delivery.gp001_HISTORICOAFASTAMENTO where  DtInicioAfastamento is not null  
+	-- BTHSC-141362 Bug em Matrículas | Afastamentos e Faltas não migraram
+		select distinct 1 as w_i_entidades,
+			a.cdMatricula as w_CdMatricula,
+			a.SqContrato as w_SqContrato,
+			date(a.DtInicioAfastamento) as w_dt_afastamento,
+			date(a.DtFimAfastamento) as w_dt_ultimo_dia,
+			isnull(b.i_tipos_afast, 7) as w_CdMotivoAfastamento 
+		from tecbth_delivery.gp001_HISTORICOAFASTAMENTO a
+		join tecbth_delivery.gp001_MOTIVOAFASTAMENTOax b on a.CdMotivoAfastamento = b.afastamento_antes 
+		where a.DtInicioAfastamento is not null
+		
+		union all
+		
+		select distinct 1 as w_i_entidades,
+			a.CdMatricula as w_CdMatricula,
+			a.SqContrato as w_SqContrato,
+			date(a.DtInicio) as w_dt_afastamento,
+			date(a.DtFim) as w_dt_ultimo_dia,
+			b.i_tipos_afast as w_CdMotivoAfastamento
+		from tecbth_delivery.gp001_MOVIMENTOFREQUENCIA a
+		join tecbth_delivery.gp001_MOTIVOAFASTAMENTOax b on a.CdAusencia = b.faltas_antes
+		where a.DtInicio is not null
 		order by 1,2,3,4 asc
 	do
 		
