@@ -19,19 +19,6 @@ begin
 		from tecbth_delivery.gp001_HISTORICOAFASTAMENTO a
 		join tecbth_delivery.gp001_MOTIVOAFASTAMENTOax b on a.CdMotivoAfastamento = b.afastamento_antes 
 		where a.DtInicioAfastamento is not null
-		
-		union all
-		
-		select distinct 1 as w_i_entidades,
-			a.CdMatricula as w_CdMatricula,
-			a.SqContrato as w_SqContrato,
-			date(a.DtInicio) as w_dt_afastamento,
-			date(a.DtFim) as w_dt_ultimo_dia,
-			b.i_tipos_afast as w_CdMotivoAfastamento
-		from tecbth_delivery.gp001_MOVIMENTOFREQUENCIA a
-		join tecbth_delivery.gp001_MOTIVOAFASTAMENTOax b on a.CdAusencia = b.faltas_antes
-		where a.DtInicio is not null
-		order by 1,2,3,4 asc
 	do
 		
 		// *****  Inicializa Variaveis

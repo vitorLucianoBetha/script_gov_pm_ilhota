@@ -69,7 +69,8 @@ commit
 
 --- ATUALIZA O i_tipos_afast PARA O ULTIMO ID PRESENTE NA TABELA DE TIPOS DE AFASTAMENTO
 --- PARA POSTERIORMENTE FAZER O DE PARA NO AFASTAMENTO
-update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = (select max(ta.i_tipos_afast) + gp001_MOTIVOAFASTAMENTOax.i_tipos_afast from bethadba.tipos_afast ta);
+update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = (select max(ta.i_tipos_afast) + gp001_MOTIVOAFASTAMENTOax.i_tipos_afast from bethadba.tipos_afast ta)
+where afastamento_antes is not null or faltas_antes = 2;
 
 --- INSERE EFETIVAMENTE OS AFASTAMENTOS DO CONCORRENTE PARA BETHA
 insert into bethadba.tipos_afast(i_tipos_afast,i_tipos_movpes,descricao,classif,perde_temposerv,busca_var,dias_prev) on existing skip
@@ -80,4 +81,14 @@ select i_tipos_afast,
 			perde_temposerv,
 			busca_var,
 			dias_prev
-from tecbth_delivery.gp001_MOTIVOAFASTAMENTOax gm 
+from tecbth_delivery.gp001_MOTIVOAFASTAMENTOax gm
+where gm.afastamento_antes is not null or faltas_antes = 2
+
+--- FALTAS JA ESTAVAM INSERIDAS NESTE CASO SOMENTE ATUALIZEI A TABELA AUXILIAR
+update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 4 where i_tipos_afast = 36;
+update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 5 where i_tipos_afast = 37;
+update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 7 where i_tipos_afast = 39;
+update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 8 where i_tipos_afast = 40;
+update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 9 where i_tipos_afast = 41;
+update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 10 where i_tipos_afast = 42;
+update tecbth_delivery.gp001_MOTIVOAFASTAMENTOax set i_tipos_afast = 11 where i_tipos_afast = 43;
