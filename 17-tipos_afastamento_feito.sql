@@ -123,3 +123,9 @@ update bethadba.tipos_afast set classif = 14 where i_tipos_afast = 51;
 update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 52;
 update bethadba.tipos_afast set classif = 21 where i_tipos_afast = 56;
 update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 59;
+
+--- ajustado após o envio pois não existe a classificação no betha desktop
+13	Afastamento p/ Fins Eleitorais	Mandato Eleitoral SEM Remuneração - ver depois de enviar
+16	Afast de Acom Filho Menor	Acompanhar membro da familia enfermo - ver depois de enviar
+27	Afast. Candid. Cargo Eletivo	Candidato a cargo eletivo - Servidor Público - ver depois de enviar
+29	Afast. Cargo Eletivo S/ Venc	Candidato a cargo eletivo - Servidor Público - ver depois de enviar
