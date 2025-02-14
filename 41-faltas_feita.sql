@@ -6,21 +6,6 @@ COMMIT;
 
 -------------------------------------------------  
 
-insert into bethadba.motivos_faltas(i_motivos_faltas,descricao,justificada,perde_temposerv,previsao,impacta_ferias)on existing skip
-select cdAusencia+4,dsAusencia,if cdAusencia = 2 then 
-								 'N' 
-							   else 
-							     'S' 
-							   endif, 
-	   inPerdeTempoServico,null,null 
-from tecbth_delivery.gp001_ausencia 
-order by 1 asc
-;
-
-commit
-;
-
-
 begin
 	// *****  Tabela bethadba.faltas
 	declare w_i_funcionarios integer;

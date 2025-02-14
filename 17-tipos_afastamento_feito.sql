@@ -124,6 +124,18 @@ update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 52;
 update bethadba.tipos_afast set classif = 21 where i_tipos_afast = 56;
 update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 59;
 
+insert into bethadba.motivos_faltas(i_motivos_faltas,descricao,justificada,perde_temposerv,previsao,impacta_ferias)on existing skip
+select cdAusencia+4,dsAusencia,if cdAusencia = 2 then 
+								 'N' 
+							   else 
+							     'S' 
+							   endif, 
+	   inPerdeTempoServico,null,null 
+from tecbth_delivery.gp001_ausencia 
+order by 1 asc;
+
+commit;
+
 --- ajustado após o envio pois não existe a classificação no betha desktop
 13	Afastamento p/ Fins Eleitorais	Mandato Eleitoral SEM Remuneração - ver depois de enviar
 16	Afast de Acom Filho Menor	Acompanhar membro da familia enfermo - ver depois de enviar
