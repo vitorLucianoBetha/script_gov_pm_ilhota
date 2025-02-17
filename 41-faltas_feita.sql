@@ -17,9 +17,18 @@ begin
 	
 	--ajustes chamado BTHSC-141519
 	ooLoop: for oo as cnv_faltas dynamic scroll cursor for
-		select 1 as w_i_entidades,cdMatricula as w_CdMatricula,SqContrato as w_SqContrato,CdAusencia+4 as w_CdAusencia,date(DtInicio) as w_dt_inicial,DtFim as w_DtFim,nrDias as w_nrDias,
-			   nrHorasDiurnas as w_nrHorasDiurnas,InSituacao as w_InSituacao 
+		select 1 as w_i_entidades,
+			cdMatricula as w_CdMatricula,
+			SqContrato as w_SqContrato,
+			if b.i_tipos_afast = 59 then 5 else b.i_tipos_afast endif as w_CdAusencia,
+			date(DtInicio) as w_dt_inicial,
+			DtFim as w_DtFim,
+			nrDias as w_nrDias,
+			cast(nrHorasDiurnas as decimal(7,4)) as w_nrHorasDiurnas,
+			InSituacao as w_InSituacao 
 		from tecbth_delivery.gp001_MovimentoFrequencia as MovimentoFrequencia
+		join tecbth_delivery.gp001_MOTIVOAFASTAMENTOax b on MovimentoFrequencia.CdAusencia = b.faltas_antes
+		--where MovimentoFrequencia.CdMatricula = 90530
 	do
 		
 		// *****  Inicializa as variaveis
@@ -71,7 +80,7 @@ begin
 			message 'Ent.: '||w_i_entidades||' Fun.: '||w_i_funcionarios||' Dt.: '||w_dt_inicial||' Qtd.: '||w_qtd_faltas to client;
 			
 			insert into bethadba.faltas(i_entidades,i_funcionarios,dt_inicial,tipo_faltas,qtd_faltas,i_motivos_faltas,tipo_descto,comp_descto,i_atestados,abonada,comp_abono,qtd_abono,
-										motivo_abono,periodo_ini_falta,i_faltas) 
+										motivo_abono,periodo_ini_falta,i_faltas) on existing skip
 			values (w_i_entidades,w_i_funcionarios,w_dt_inicial,w_tipo_faltas,w_qtd_faltas,w_i_motivos_faltas,2,w_comp_descto,null,'N',null,null,
 					null,1, w_i_faltas);
 		end if;
