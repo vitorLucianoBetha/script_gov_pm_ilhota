@@ -6,6 +6,7 @@ call bethadba.pg_setoption('fire_triggers','off');
 COMMIT;
 
 -- BTHSC-59216 ajuste organogramas - André
+-- BTHSC-153502 Bug em Matrículas | Históricos duplicados
 
 begin
 	// **** Primeiro cursor
@@ -29,76 +30,16 @@ begin
 			Funcionario.cdAgenteNocivo,
 			DtUltimoExame,
 			dtFimContrato,
-			DtTransferencia,
-			Funcionario.cdLocal,
+			isnull(DtTransferencia,DtAdmissao) as DtTransferencia,
+			HistoricoLotacao.CdLocalTransf,
 			if Lotacao.CdOrganograma = 99 then 2 else Lotacao.CdOrganograma endif,
 			nivel1||nivel2,--||nivel3||nivel4,
 			SqCartaoPonto,
 			Funcionario.dtRescisao
-		from tecbth_delivery.GP001_Funcionario as Funcionario,tecbth_delivery.GP001_HistoricoLotacao as HistoricoLotacao,tecbth_delivery.GP001_Lotacao as Lotacao,tecbth_delivery.GP001_Empresa as Empresa 
-		where TpTransferencia not in('E','F') 
-		and Funcionario.CdMatricula = HistoricoLotacao.CdMatricula 
-		and Funcionario.SqContrato = HistoricoLotacao.SqContrato 
-		and HistoricoLotacao.CdLocalTransf = Lotacao.CdLocal 
-		and Lotacao.CdOrganograma = Empresa.CdOrganograma  
-		union
-		select 1,Funcionario.cdMatricula as w_i_funcionarios,
-			Funcionario.SqContrato,
-			CdPessoa,
-			DtAdmissao,
-			Funcionario.cdFilial,
-			cdVinculoEmpregaticio,
-			InPagamentoLiquido,
-			tecbth_delivery.fu_tirachars(tecbth_delivery.fu_tirachars(tecbth_delivery.fu_tirachars(nrContaCorrente,'X'),'.'),','),dgContaCorrente,
-			NrBancoContaCorrente,
-			NrAgenciaCheque,
-			NrBancoCheque,
-			NrAgenciaContaCorrente,
-			cdHorario,
-			InOpcaoFgts,
-			inContribuiINSS,
-			inContribuiFundoPrev,
-			Funcionario.cdAgenteNocivo,
-			DtUltimoExame,
-			dtFimContrato,
-			date(now(*)),
-			Funcionario.cdLocal,
-		if Lotacao.CdOrganograma = 99 then 2 else Lotacao.CdOrganograma endif,
-			nivel1||nivel2,--||nivel3||nivel4,
-			SqCartaoPonto,
-			Funcionario.dtRescisao
-		from tecbth_delivery.GP001_funcionario as funcionario,tecbth_delivery.GP001_lotacao as lotacao,tecbth_delivery.GP001_Empresa as Empresa 
-		where funcionario.CdLocal = lotacao.CdLocal 
-		and Lotacao.CdOrganograma = Empresa.CdOrganograma 
-		union
-		select 1,Funcionario.cdMatricula as w_i_funcionarios,
-			Funcionario.SqContrato,
-			CdPessoa,
-			DtAdmissao,
-			Funcionario.cdFilial,
-			cdVinculoEmpregaticio,
-			InPagamentoLiquido,
-			tecbth_delivery.fu_tirachars(tecbth_delivery.fu_tirachars(tecbth_delivery.fu_tirachars(nrContaCorrente,'X'),'.'),','),dgContaCorrente,
-			NrBancoContaCorrente,
-			NrAgenciaCheque,
-			NrBancoCheque,
-			NrAgenciaContaCorrente,
-			cdHorario,
-			InOpcaoFgts,
-			inContribuiINSS,
-			inContribuiFundoPrev,
-			Funcionario.cdAgenteNocivo,
-			DtUltimoExame,
-			dtFimContrato,
-			now(*),
-			Funcionario.cdLocal,
-			if Lotacao.CdOrganograma = 99 then 2 else Lotacao.CdOrganograma endif,
-			nivel1||nivel2,--||nivel3||nivel4,
-			SqCartaoPonto,
-			Funcionario.dtRescisao
-		from tecbth_delivery.GP001_funcionario as funcionario, tecbth_delivery.GP001_lotacao as lotacao,tecbth_delivery.GP001_Empresa as Empresa 
-		where funcionario.CdLocal = lotacao.CdLocal 
-		and Lotacao.CdOrganograma = Empresa.CdOrganograma 
+		from tecbth_delivery.GP001_Funcionario as Funcionario
+		left join tecbth_delivery.GP001_HistoricoLotacao as HistoricoLotacao on Funcionario.CdMatricula = HistoricoLotacao.CdMatricula and Funcionario.SqContrato = HistoricoLotacao.SqContrato and TpTransferencia not in('E','F')
+		left join tecbth_delivery.GP001_Lotacao as Lotacao on HistoricoLotacao.CdLocalTransf = Lotacao.CdLocal
+		left join tecbth_delivery.GP001_Empresa as Empresa on Lotacao.CdOrganograma = Empresa.CdOrganograma
 		order by 1,2,3,22 asc; 
 	 
 
