@@ -121,11 +121,10 @@ begin
 				insert into bethadba.hist_cargos(i_entidades,i_funcionarios,dt_alteracoes,dt_saida,i_cargos,i_motivos_altcar,i_atos,i_concursos,dt_nomeacao,dt_posse)on existing skip
 				values (w_i_entidades,w_i_funcionarios,w_dt_alteracoes,null,w_i_cargos,w_i_motivos_altcar,null,w_i_concursos,null,w_dt_posse); 
 			else
+			if not exists(select 1 from bethadba.hist_cargos where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and i_cargos = w_i_cargos and dt_alteracoes = w_dt_alteracoes) then
               if (w_dtRescisao is null) or (date(w_dt_alteracoes) < w_dtRescisao) then
-                set w_dt_alteracoes = dateadd(HOUR, 1, DATE(w_dt_alteracoes));
-                if exists(select 1 from bethadba.hist_cargos where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) or
-                   exists(select 1 from bethadba.hist_funcionarios where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) or
-                   exists(select 1 from bethadba.hist_salariais where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) then
+                //set w_dt_alteracoes = dateadd(HOUR, 1, DATE(w_dt_alteracoes));
+                if exists(select 1 from bethadba.hist_cargos where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) then
                   set w_dt_alteracoes = dateadd(HOUR, 1, (select max(dt_alteracoes)
                                                           from (select dt_alteracoes from bethadba.hist_salariais
                                                                 where i_entidades = w_i_entidades
@@ -166,12 +165,15 @@ begin
                    message '3-Passou aqui: ' || string(w_dt_alteracoes) to client;
                 end if;
               end if;
+             end if;
+            if not exists(select 1 from bethadba.hist_cargos where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and i_cargos = w_i_cargos and date(dt_alteracoes) = date(w_dt_alteracoes)) then
               insert into bethadba.hist_cargos(i_entidades,i_funcionarios,dt_alteracoes,dt_saida,i_cargos,i_motivos_altcar,i_atos,i_concursos,dt_nomeacao,dt_posse)on existing skip
               values (w_i_entidades,w_i_funcionarios,w_dt_alteracoes,null,w_i_cargos,w_i_motivos_altcar,null,w_i_concursos,null,w_dt_posse);
+            else
+            	update bethadba.hist_cargos set i_motivos_altcar = w_i_motivos_altcar where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and i_cargos = w_i_cargos and date(dt_alteracoes) = date(w_dt_alteracoes);
+            end if;
             end if;
         end if;
 		set w_i_funcionarios_aux=w_i_funcionarios;
 	end for;
 end;
-
-
