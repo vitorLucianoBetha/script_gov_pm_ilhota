@@ -18,14 +18,21 @@ begin
 	set w_cont=0;
 	set w_number=0;
 	ooLoop: for oo as cnv_hist_cargos dynamic scroll cursor for
-		select 1 as w_i_entidades, Funcionario.cdMatricula as w_cdMatricula, Funcionario.SqContrato as w_SqContrato, date(dtAdmissao) as w_dtAdmissao,
-               DtHistorico as w_DtHistorico, cdMotivo as w_i_motivos_altcar,
-               if HistoricoCargo.cdCargo is null then Funcionario.CdCargo else HistoricoCargo.cdCargo endif as w_i_cargos, DtValidade as w_dtValidade,
-               cast(HistoricoCargo.nrConcurso as integer) as w_i_concursos, date(if DtPosseCargo= 'NULL' THEN null else DtPosseCargo endif )as w_dt_posse,
-               cdtipoferias as w_configferias, Funcionario.dtRescisao as w_dtRescisao
+		select 1 as w_i_entidades,
+			Funcionario.cdMatricula as w_cdMatricula,
+			Funcionario.SqContrato as w_SqContrato,
+			date(dtAdmissao) as w_dtAdmissao,
+            DtHistorico as w_DtHistorico,
+            cdMotivo as w_i_motivos_altcar,
+            if HistoricoCargo.cdCargo is null then Funcionario.CdCargo else HistoricoCargo.cdCargo endif as w_i_cargos,
+            (select date(date(min(a.DtHistorico)) - 1) from tecbth_delivery.GP001_HistoricoCargo a where a.CdMatricula = w_cdMatricula and a.DtHistorico > w_DtHistorico) as w_dtValidade,
+            cast(HistoricoCargo.nrConcurso as integer) as w_i_concursos,
+            date(if DtPosseCargo= 'NULL' THEN null else DtPosseCargo endif )as w_dt_posse,
+            cdtipoferias as w_configferias,
+            Funcionario.dtRescisao as w_dtRescisao
         from tecbth_delivery.GP001_Funcionario as Funcionario
-          left outer join tecbth_delivery.GP001_HistoricoCargo AS HistoricoCargo on (Funcionario.CdMatricula = HistoricoCargo.CdMatricula and 
-                                                                                     Funcionario.SqContrato = HistoricoCargo.SqContrato)
+        left outer join tecbth_delivery.GP001_HistoricoCargo AS HistoricoCargo on (Funcionario.CdMatricula = HistoricoCargo.CdMatricula and 
+                                                                                     Funcionario.SqContrato = HistoricoCargo.SqContrato)                                                                         
 		order by 1,2,3,5,8 asc
 	do
 		set w_cont=w_cont+1;
@@ -45,7 +52,7 @@ begin
 		if w_number = 1 then
 			set w_dt_alteracoes = hours(w_dtAdmissao, 0);
 		else
-          if date(w_dt_alteracoes) < w_dtAdmissao then
+          if date(w_dt_alteracoes) < date(w_dtAdmissao) then
             set w_dt_alteracoes = dateadd(HOUR, 1, (select max(dt_alteracoes) from bethadba.hist_cargos
                                                     where i_entidades = w_i_entidades
                                                       and i_funcionarios = w_i_funcionarios
@@ -87,13 +94,13 @@ begin
 			if not exists(select 1 from bethadba.hist_cargos where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios) then
 				message 'Ent.: '||w_i_entidades||' Fun.:'||w_i_funcionarios||'Dt Alt.: '||w_dt_alteracoes||' Car.: '||w_i_cargos to client;
 				insert into bethadba.hist_cargos(i_entidades,i_funcionarios,dt_alteracoes,dt_saida,i_cargos,i_motivos_altcar,i_atos,i_concursos,dt_nomeacao,dt_posse)on existing skip
-				values (w_i_entidades,w_i_funcionarios,w_dt_alteracoes,null,w_i_cargos,w_i_motivos_altcar,null,w_i_concursos,null,w_dt_posse); 
+				values (w_i_entidades,w_i_funcionarios,w_dt_alteracoes,w_dtValidade,w_i_cargos,w_i_motivos_altcar,null,w_i_concursos,null,w_dt_posse); 
 			else
-              if (w_dtRescisao is null) or (date(w_dt_alteracoes) < w_dtRescisao) then
-                set w_dt_alteracoes = dateadd(HOUR, 1, DATE(w_dt_alteracoes));
-                if exists(select 1 from bethadba.hist_cargos where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) or
-                   exists(select 1 from bethadba.hist_funcionarios where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) or
-                   exists(select 1 from bethadba.hist_salariais where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) then
+              if (w_dtRescisao is null) or (date(w_dt_alteracoes) < date(w_dtRescisao)) then
+                //set w_dt_alteracoes = dateadd(HOUR, 1, DATE(w_dt_alteracoes));
+                if exists(select 1 from bethadba.hist_cargos where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) then
+                   //exists(select 1 from bethadba.hist_funcionarios where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) or
+                   //exists(select 1 from bethadba.hist_salariais where i_entidades = w_i_entidades and i_funcionarios = w_i_funcionarios and dt_alteracoes = w_dt_alteracoes) then
                   set w_dt_alteracoes = dateadd(HOUR, 1, (select max(dt_alteracoes)
                                                           from (select dt_alteracoes from bethadba.hist_salariais
                                                                 where i_entidades = w_i_entidades
@@ -135,7 +142,7 @@ begin
                 end if;
               end if;
               insert into bethadba.hist_cargos(i_entidades,i_funcionarios,dt_alteracoes,dt_saida,i_cargos,i_motivos_altcar,i_atos,i_concursos,dt_nomeacao,dt_posse)on existing skip
-              values (w_i_entidades,w_i_funcionarios,w_dt_alteracoes,null,w_i_cargos,w_i_motivos_altcar,null,w_i_concursos,null,w_dt_posse);
+              values (w_i_entidades,w_i_funcionarios,w_dt_alteracoes,w_dtValidade,w_i_cargos,w_i_motivos_altcar,null,w_i_concursos,null,w_dt_posse);
             end if;
         end if;
 		set w_i_funcionarios_aux=w_i_funcionarios;
