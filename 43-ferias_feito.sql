@@ -150,3 +150,24 @@ begin
   end loop L_item;
   close cnv_ferias
 end; 
+
+-- INSERE AS FALTAS NO PERIODO DE FERIAS
+insert into bethadba.periodos_ferias on existing skip
+select 1 as entidade,
+		gp.CdMatricula as i_funcionarios,
+		(select first i_periodos
+		from bethadba.periodos 
+		where i_entidades = 1 
+		and i_funcionarios = gp.CdMatricula 
+		and dt_aquis_ini = gp.DtInicioPeriodo) as periodod,
+		(select max(pf.i_periodos_ferias) + 1 from bethadba.periodos_ferias pf where pf.i_funcionarios = i_funcionarios and pf.i_periodos = periodod) as periodos_ferias,
+		4 as tipo,
+		date(gp.DtFimPeriodo) as dt_periodo,
+		gp.NrDiasPerdeAusencia as dias,
+		null,
+		'S',
+		null,
+		null
+from tecbth_delivery.gp001_PERIODOAQUISICAO gp 
+where gp.NrDiasPerdeAusencia > 0
+and isnull((select sum(pf.num_dias) from bethadba.periodos_ferias pf where pf.i_funcionarios = gp.CdMatricula and pf.i_periodos = periodod and pf.tipo <> 1),0) < 30
