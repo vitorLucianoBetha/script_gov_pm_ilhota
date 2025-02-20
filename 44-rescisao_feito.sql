@@ -7,7 +7,12 @@ begin
 	declare w_dt_aviso date; 
 
 	ooLoop: for oo as cnv_rescisoes dynamic scroll cursor for
-		select 1 as w_i_entidades,CdMatricula as w_cdMatricula,SqContrato as w_SqContrato,CdDesligamento as w_CdDesligamento,date(DtRescisao) as w_dt_rescisao,DtAvisoPrevio as w_DtAvisoPrevio
+		select 1 as w_i_entidades,
+			CdMatricula as w_cdMatricula,
+			SqContrato as w_SqContrato,
+			CdDesligamento as w_CdDesligamento,
+			date(DtRescisao) as w_dt_rescisao,
+			DtAvisoPrevio as w_DtAvisoPrevio
 		from tecbth_delivery.gp001_funcionario 
 		where dtRescisao is not null  
 		order by 1,2,3 asc	
