@@ -115,3 +115,19 @@ select 1,
 from tecbth_delivery.gp001_PERIODOAQUISICAO gp where NrDiasPerdeAfastamento > 0
 and not exists(select first 1 from bethadba.periodos_ferias pf where pf.i_funcionarios = gp.CdMatricula and pf.i_periodos = periodo and pf.tipo <> 1)
 and dateadd(year,1,gp.DtFimPeriodo) < GETDATE()
+
+-- insere periodos de férias para os funcionários que não inseriram o inicio do periodo de férias
+INSERT INTO periodos_ferias (i_entidades, i_funcionarios, i_periodos, i_periodos_ferias, tipo, dt_periodo, num_dias, observacao, manual, i_ferias, i_rescisoes)
+select p.i_entidades,
+			p.i_funcionarios,
+			p.i_periodos,
+			isnull((select max(pf2.i_periodos_ferias) + 1 from bethadba.periodos_ferias pf2 where pf2.i_funcionarios = p.i_funcionarios and pf2.i_periodos = p.i_periodos),1) as periodo_ferias,
+			1,
+			p.dt_aquis_ini,
+			p.num_dias_dir,
+			null,
+			'N',
+			null,
+			null
+from bethadba.periodos p 
+where not exists(select first 1 from bethadba.periodos_ferias pf where pf.i_funcionarios = p.i_funcionarios and pf.i_periodos = p.i_periodos and pf.tipo = 1);
