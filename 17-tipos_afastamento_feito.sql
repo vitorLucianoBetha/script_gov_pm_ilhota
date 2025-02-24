@@ -133,6 +133,7 @@ update bethadba.tipos_afast set classif = 4 where i_tipos_afast = 24;
 update bethadba.tipos_afast set classif = 5 where i_tipos_afast = 25;
 update bethadba.tipos_afast set classif = 7 where i_tipos_afast = 26;
 update bethadba.tipos_afast set classif = 7 where i_tipos_afast = 27;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 28; -- atualizado para 2 para enviar ao cloud
 update bethadba.tipos_afast set classif = 7 where i_tipos_afast = 29;
 update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 30;
 update bethadba.tipos_afast set classif = 5 where i_tipos_afast = 31;
