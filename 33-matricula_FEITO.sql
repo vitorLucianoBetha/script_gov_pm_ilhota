@@ -386,8 +386,8 @@ end;
 
 -- INSERIR CAMPOS ADICIONAIS
 -- BTHSC-138611 Bug em Matrículas | Afastamento, Lotação, Horas por mês, Parecer do Controle Interno
-INSERT INTO funcionarios_caract_cfg (i_caracteristicas, ordem, permite_excluir, dt_expiracao) VALUES(20503, 1, N'S', '2999-12-31');
+INSERT INTO funcionarios_caract_cfg (i_caracteristicas, ordem, permite_excluir, dt_expiracao) VALUES(20503, 1, 'S', '2999-12-31');
 
-insert into bethadba.funcionarios_prop_adic(i_caracteristicas,i_entidades,i_funcionarios,valor_caracter)
+insert into bethadba.funcionarios_prop_adic(i_caracteristicas,i_entidades,i_funcionarios,valor_caracter) on existing skip
 select 20503, 1, cdMatricula, idTipoParecerInterno from tecbth_delivery.gp001_TCSC_FUNCIONARIO tf 
 where idTipoParecerInterno is not null
