@@ -132,7 +132,7 @@ begin
     set w_i_entidades = 1;
     set w_i_niveis = null;
     message 'CdEstrutura.: ' || w_cdestruturasalarial || ' - CdFaixa.: ' || w_cdfaixasalarial || ' - NrSequencia.: ' || w_nrsequenciafaixa || ' - Descricao.: ' || w_descricao to client;
-    set w_i_niveis = w_cdestruturasalarial || cast(w_cdfaixasalarial as integer);
+    set w_i_niveis = cast(w_cdfaixasalarial as integer);
     message 'I_Niveis.: ' || w_i_niveis to client;
     set w_nome = w_descricao;
     if w_vlfaixasalarial = 0 then
