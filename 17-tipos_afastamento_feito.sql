@@ -94,6 +94,7 @@ from tecbth_delivery.gp001_MOTIVOAFASTAMENTOax gm
 where gm.afastamento_antes is not null or faltas_antes = 2
 
 -- atualizando as classificações de acordo com o depara repassado pela implantação
+-- PM Ilhota
 update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 22;
 update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 23;
 update bethadba.tipos_afast set classif = 4 where i_tipos_afast = 24;
@@ -124,6 +125,24 @@ update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 52;
 update bethadba.tipos_afast set classif = 21 where i_tipos_afast = 56;
 update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 59;
 
+-- atualizando as classificações de acordo com o depara repassado pela implantação
+-- CM Ilhota
+update bethadba.tipos_afast set classif = 10 where i_tipos_afast = 22;
+update bethadba.tipos_afast set classif = 6 where i_tipos_afast = 23;
+update bethadba.tipos_afast set classif = 4 where i_tipos_afast = 24;
+update bethadba.tipos_afast set classif = 5 where i_tipos_afast = 25;
+update bethadba.tipos_afast set classif = 7 where i_tipos_afast = 26;
+update bethadba.tipos_afast set classif = 7 where i_tipos_afast = 27;
+update bethadba.tipos_afast set classif = 7 where i_tipos_afast = 29;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 30;
+update bethadba.tipos_afast set classif = 5 where i_tipos_afast = 31;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 32;
+update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 35;
+
+--- ajustado após o envio pois não existe a classificação no betha desktop
+-- CM Ilhota
+2	Falta Injustificada	Licença (COM vencimentos) - Servidor Público
+
 insert into bethadba.motivos_faltas(i_motivos_faltas,descricao,justificada,perde_temposerv,previsao,impacta_ferias)on existing skip
 select cdAusencia+4,dsAusencia,if cdAusencia = 2 then 
 								 'N' 
@@ -137,6 +156,7 @@ order by 1 asc;
 commit;
 
 --- ajustado após o envio pois não existe a classificação no betha desktop
+-- PM Ilhota
 13	Afastamento p/ Fins Eleitorais	Mandato Eleitoral SEM Remuneração - ver depois de enviar
 16	Afast de Acom Filho Menor	Acompanhar membro da familia enfermo - ver depois de enviar
 27	Afast. Candid. Cargo Eletivo	Candidato a cargo eletivo - Servidor Público - ver depois de enviar
