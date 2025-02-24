@@ -142,7 +142,7 @@ update bethadba.tipos_afast set classif = 2 where i_tipos_afast = 35;
 
 --- ajustado após o envio pois não existe a classificação no betha desktop
 -- CM Ilhota
-2	Falta Injustificada	Licença (COM vencimentos) - Servidor Público
+7	Afast. Cedência com Vencimento	Cedência
 
 insert into bethadba.motivos_faltas(i_motivos_faltas,descricao,justificada,perde_temposerv,previsao,impacta_ferias)on existing skip
 select cdAusencia+4,dsAusencia,if cdAusencia = 2 then 
