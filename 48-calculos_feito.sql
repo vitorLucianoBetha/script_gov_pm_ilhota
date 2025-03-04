@@ -15,6 +15,8 @@ CALL bethadba.pg_setoption('wait_for_commit', 'on');
 CALL bethadba.pg_habilitartriggers('off');
 COMMIT;
 
+-- INSERE TODOS OS CALCULOS MENOS OS TIPOS 1 E 2 QUE SÃO RESCISÃO POIS PODEM TER EVENTOS DUPLICADOS COM AS MENSAIS
+-- NESTE CASO CRIAMOS OUTRA TABELA QUE PERMITE A INSERÇÃO DESTAS FOLHAS NA TABELA E ASSIM UNIFICAMOS NO ARJOB
 
 begin
 	// *****  Tabela bethadba.movimentos
@@ -69,6 +71,7 @@ begin
 		join tecbth_delivery.gp001_VERBA v on f.cdVerba = v.CdVerba
 		join tecbth_delivery.gp001_FichaFinanceiraHeaderCalculo ff on f.cdMatricula = ff.cdMatricula and f.dtCompetencia = ff.dtCompetencia and f.sqHabilitacao = ff.sqHabilitacao
 		where f.sqHabilitacao = ff.sqHabilitacao
+		and f.tpCalculo not in (1,2)
 		order by 1, 2, 4, 9 asc
 	do
 		
@@ -360,6 +363,21 @@ set vlr_proventos = (select coalesce(sum(vlr_calc),0)
 					 and t2.mov_resc = 'N');
 
 commit;
+
+CREATE TABLE tecbth_delivery.gp001_MOVIMENTOS (
+    i_entidades int NOT NULL,
+    i_tipos_proc smallint NOT NULL,
+    i_competencias date NOT NULL,
+    i_processamentos smallint NOT NULL,
+    i_funcionarios int NOT NULL,
+    i_eventos smallint NOT NULL,
+    vlr_inf numeric(12,2) NOT NULL,
+    vlr_calc numeric(12,2) NOT NULL,
+    tipo_pd char(1) NOT NULL,
+    compoe_liq char(1) NOT NULL,
+    classif_evento tinyint DEFAULT 0 NOT NULL,
+    mov_resc char(1) DEFAULT 'N' NOT NULL
+);
 
 -- BTHSC-136244
 
