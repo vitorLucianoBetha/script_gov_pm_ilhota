@@ -1,3 +1,15 @@
+CREATE TABLE tecbth_delivery.gp001_FichaFinanceiraHeaderCalculo (
+	ID int NOT NULL,
+	cdMatricula int NOT NULL,
+	sqContrato smallint NOT NULL,
+	dtCompetencia datetime NOT NULL,
+	tpCalculo smallint NOT NULL,
+	sqHabilitacao smallint NOT NULL,
+	nrReciboPagto smallint NULL,
+	dtEnvioFila_eSocial datetime NULL,
+	dtPagamento datetime NULL
+);
+
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
 CALL bethadba.pg_setoption('wait_for_commit', 'on');
 CALL bethadba.pg_habilitartriggers('off');
@@ -39,23 +51,24 @@ begin
 	declare w_classif_evento_aux tinyint;
 	ooLoop: for oo as cnv_movimentos dynamic scroll cursor for
 		select 1 as w_i_entidades,
-			cdMatricula as w_cdMatricula,
-			sqContrato as w_sqContrato,
-			dtCompetencia as w_dtCompetencia,
-			tpcalculo as w_tpcalculo,
-			sqHabilitacao as w_sqHabilitacao,
+			f.cdMatricula as w_cdMatricula,
+			f.sqContrato as w_sqContrato,
+			f.dtCompetencia as w_dtCompetencia,
+			f.tpcalculo as w_tpcalculo,
+			f.sqHabilitacao as w_sqHabilitacao,
 			f.cdVerba as w_cdVerba,
-			inRetificacao as w_inRetificacao,
-			dtPagamento as w_dtPagamento,
+			f.inRetificacao as w_inRetificacao,
+			f.dtPagamento as w_dtPagamento,
 			tecbth_delivery.fu_convdecimal(tecbth_delivery.tira_caracter_1(vlComplemento),0) as w_vlr_inf,
 			cast(vlMensal as decimal(12,2)) as w_vlr_calc,
 			cast(vlAuxiliar as decimal(12,2)) as w_vlAuxiliar,
 			cast(vlIntegral as decimal(12,2)) as w_vlIntegral,
 			if v.TpCategoria in ('D','P') then 'S' else 'N' endif as w_compoe_liq,
 			v.TpCategoria as w_tipo_pd
-		from tecbth_delivery.gp001_fichafinanceira f
+		from tecbth_delivery.gp001_FICHAFINANCEIRA3 f
 		join tecbth_delivery.gp001_VERBA v on f.cdVerba = v.CdVerba
-		where f.sqHabilitacao = 1
+		join tecbth_delivery.gp001_FichaFinanceiraHeaderCalculo ff on f.cdMatricula = ff.cdMatricula and f.dtCompetencia = ff.dtCompetencia and f.sqHabilitacao = ff.sqHabilitacao
+		where f.sqHabilitacao = ff.sqHabilitacao
 		order by 1, 2, 4, 9 asc
 	do
 		
