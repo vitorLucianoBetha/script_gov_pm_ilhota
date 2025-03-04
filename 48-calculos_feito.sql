@@ -346,7 +346,8 @@ set vlr_proventos = (select coalesce(sum(vlr_calc),0)
 					 and t2.i_processamentos = t1.i_processamentos 
 					 and t2.i_funcionarios = t1.i_funcionarios 
 					 and t2.tipo_pd = 'P' 
-					 and t2.compoe_liq = 'S'),
+					 and t2.compoe_liq = 'S'
+					 and t2.mov_resc = 'N'),
 	vlr_descontos = (select coalesce(sum(vlr_calc),0) 
 					 from bethadba.movimentos as t2 
 					 where t2.i_entidades = t1.i_entidades 
@@ -355,7 +356,8 @@ set vlr_proventos = (select coalesce(sum(vlr_calc),0)
 					 and t2.i_processamentos = t1.i_processamentos 
 					 and t2.i_funcionarios = t1.i_funcionarios 
 					 and t2.tipo_pd = 'D' 
-					 and t2.compoe_liq = 'S');
+					 and t2.compoe_liq = 'S'
+					 and t2.mov_resc = 'N');
 
 commit;
 
