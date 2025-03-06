@@ -67,7 +67,7 @@ begin
 			v.TpCategoria as w_tipo_pd
 		from tecbth_delivery.gp001_FICHAFINANCEIRA3 f
 		join tecbth_delivery.gp001_VERBA v on f.cdVerba = v.CdVerba
-		join tecbth_delivery.gp001_FichaFinanceiraHeaderCalculo ff on f.cdMatricula = ff.cdMatricula and f.dtCompetencia = ff.dtCompetencia and f.sqHabilitacao = ff.sqHabilitacao
+		join tecbth_delivery.gp001_FichaFinanceiraHeaderCalculo ff on f.cdMatricula = ff.cdMatricula and f.dtCompetencia = ff.dtCompetencia and f.sqHabilitacao = ff.sqHabilitacao and f.tpCalculo = ff.tpCalculo
 		where f.sqHabilitacao = ff.sqHabilitacao
 		and f.tpCalculo not in (1,2)
 		order by 1, 2, 4, 9 asc
