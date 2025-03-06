@@ -633,29 +633,88 @@ set vlr_proventos = (select coalesce(sum(vlr_calc),0)
 
 commit;
 
-CREATE TABLE tecbth_delivery.gp001_MOVIMENTOS (
-    i_entidades int NOT NULL,
-    i_tipos_proc smallint NOT NULL,
-    i_competencias date NOT NULL,
-    i_processamentos smallint NOT NULL,
-    i_funcionarios int NOT NULL,
-    i_eventos smallint NOT NULL,
-    vlr_inf numeric(12,2) NOT NULL,
-    vlr_calc numeric(12,2) NOT NULL,
-    tipo_pd char(1) NOT NULL,
-    compoe_liq char(1) NOT NULL,
-    classif_evento tinyint DEFAULT 0 NOT NULL,
-    mov_resc char(1) DEFAULT 'N' NOT NULL
-);
+/* ATENÇÃO ADICIONAR NO ARJOB DE FOLHA
 
--- BTHSC-136244
+union all 
 
-update bethadba.movimentos set compoe_liq = 'N', mov_resc = 'N' where i_funcionarios in (87211) and i_eventos in (1245, 138);
+                 select rescisao = 'S' , 
+                        300 as sistema, 
+                        'folha' as tipo_registro,
+                        dc.i_entidades         as chave_dsk1,
+                        dc.i_funcionarios   as chave_dsk2,
+                        dc.i_tipos_proc      as chave_dsk3,
+                        dc.i_processamentos as chave_dsk4,
+                        dc.i_competencias    as chave_dsk5,
+                        tipoProcessamento = 'RESCISAO',
+                        subTipoProcessamento = case dc.i_tipos_proc 
+                                     when 11 then 'INTEGRAL' 
+                                     when 42 then 'COMPLEMENTAR'
+                                     end,
+                        ehAposentado = if bethadba.dbf_gettipoafast (1,funcionarios.i_entidades,funcionarios.i_funcionarios,dc.i_competencias) = 9 then 'APOSENTADO' 
+                                            else
+                                        if bethadba.dbf_gettipoafast (1,funcionarios.i_entidades,funcionarios.i_funcionarios,dc.i_competencias) = 8 
+                                                                                and exists (select 1 from bethadba.rescisoes r
+                                                                                join bethadba.motivos_apos ma on r.i_motivos_apos = ma.i_motivos_apos
+                                                                                join bethadba.tipos_afast ta on ma.i_tipos_afast = ta.i_tipos_afast
+                                                                                where r.i_entidades = chave_dsk1 
+                                                                                            and r.i_funcionarios = chave_dsk2 and r.dt_rescisao < chave_dsk5
+                                                                                            and r.dt_canc_resc is null and r.i_motivos_apos is not null
+                                                                                            and ta.classif = 9)
+                                        then 'APOSENTADO' endif                                                               
+                                   endif,
+                        motivoRescisaoCessado = (select first i_motivos_resc from bethadba.rescisoes where rescisoes.i_funcionarios = dc.i_funcionarios and i_motivos_resc = 8),
+                        matricula = bethadba.dbf_get_id_gerado(sistema, 'matricula', dc.i_entidades , dc.i_funcionarios ,(if ehAposentado = 'APOSENTADO' and motivoRescisaoCessado = 8 then ehAposentado endif)), 
+                        competencia = dateformat(dc.i_competencias,'yyyy-MM'),
+                        folhaPagamento = 'true',
+                        identificadorFolhaDePagamento = dc.recibo_esocial,
+                        dataPagamento = dc.dt_pagto,
+                        dataFechamento = dc.dt_fechamento,
+                        dataCalculo = dataPagamento ,
+                        totalBruto = isnull((select sum(vlr_calc) from tecbth_delivery.gp001_movimentos m 
+                                             where  m.i_entidades = dc.i_entidades and 
+                                                    m.i_funcionarios = dc.i_funcionarios and 
+                                                    m.i_tipos_proc = dc.i_tipos_proc and 
+                                                    m.i_processamentos = dc.i_processamentos and 
+                                                    m.i_competencias = dc.i_competencias and 
+                                                    m.mov_resc = 'S' and 
+                                                    m.tipo_pd = 'P' and 
+                                                    m.compoe_liq = 'S'),0),
+                        totalDesconto = isnull((select sum(vlr_calc) from tecbth_delivery.gp001_movimentos m 
+                                             where  m.i_entidades = dc.i_entidades and 
+                                                    m.i_funcionarios = dc.i_funcionarios and 
+                                                    m.i_tipos_proc = dc.i_tipos_proc and 
+                                                    m.i_processamentos = dc.i_processamentos and 
+                                                    m.i_competencias = dc.i_competencias and 
+                                                    m.mov_resc = 'S' and 
+                                                    m.tipo_pd = 'D' and 
+                                                    m.compoe_liq = 'S'),0),
+                        totalLiquido = totalBruto - totalDesconto,
+                        temRescisao = if exists (select 1 
+                                                   from tecbth_delivery.gp001_movimentos m 
+                                                  where m.i_entidades = dc.i_entidades and 
+                                                        m.i_funcionarios = dc.i_funcionarios and 
+                                                        m.i_tipos_proc = dc.i_tipos_proc and 
+                                                        m.i_processamentos = dc.i_processamentos and 
+                                                        m.i_competencias = dc.i_competencias and 
+                                                        m.mov_resc = 'S') then 'S' else 'N' endif ,
+                        dataLiberacao =  (select processamentos.dt_liberacao 
+                                            from bethadba.processamentos 
+                                           where processamentos.i_entidades = dc.i_entidades and 
+                                                 processamentos.i_entidades = dc.i_funcionarios and 
+                                                 processamentos.i_entidades = dc.i_tipos_proc and 
+                                                 processamentos.i_entidades = dc.i_competencias and 
+                                                 processamentos.i_entidades = dc.i_processamentos),
+                        situacao = 'FECHADA',
+                        NULL as ferias , 
+                        NULL as periodo , 
+                        NULL as periodoAquisitivo 
+                   from bethadba.dados_calc dc, bethadba.funcionarios
+                  where 
+                        dc.i_entidades in (1) and
+                        dc.i_entidades = funcionarios.i_entidades and
+                        dc.i_funcionarios = funcionarios.i_funcionarios and
+                        dc.dt_fechamento is not null and
+                        temRescisao = 'S' and 
+                        matricula is not null
 
-update bethadba.movimentos set mov_resc = 'S', i_competencias = '2024-02-01' where i_eventos = 501 and i_funcionarios = 86193 and i_competencias = '2024-01-01';
-update bethadba.movimentos set mov_resc = 'N', i_competencias = '2024-02-01' where i_eventos = 501 and i_funcionarios = 86193 and i_competencias = '2024-01-01';
-
-update bethadba.movimentos set compoe_liq = 'S', mov_resc = 'N' where i_funcionarios in (87211) and i_eventos in (1,269,509,517,519,523,526,528,539,541,567,568,952)
-
-update bethadba.movimentos set mov_resc = 'S', i_competencias = '2024-02-01' where i_eventos = 501 and i_funcionarios = 86193 and i_competencias = '2024-01-01';
-update bethadba.movimentos set mov_resc = 'N', i_competencias = '2024-02-01' where i_eventos = 501 and i_funcionarios = 86193 and i_competencias = '2024-01-01';
+*/
