@@ -508,10 +508,6 @@ begin
 				
 				message 'Ent.: '||w_i_entidades||' Tip.: '||w_i_tipos_proc||' Com.: '||w_i_competencias||' Pro.: '||w_i_processamentos||' Fun.: '||w_i_funcionarios||' Eve.: '||w_i_eventos||
 						' Vlr. Inf.: '||w_vlr_inf||' Vlr. Cal.: '||w_vlr_calc to client;
-					
-		    
-		    	insert into tecbth_delivery.gp001_MOVIMENTOS(i_entidades,i_tipos_proc,i_competencias,i_processamentos,i_funcionarios,i_eventos,vlr_inf,vlr_calc,tipo_pd,compoe_liq,classif_evento,mov_resc)
-		    	values (w_i_entidades,w_i_tipos_proc,w_i_competencias,w_i_processamentos,w_i_funcionarios,w_i_eventos,w_vlr_inf,w_vlr_calc,w_tipo_pd,w_compoe_liq,w_classif_evento,w_mov_resc);
 		    
 		    	if w_inRetificacao = 'C' 
 		    		and exists(select first 1 from tecbth_delivery.gp001_MOVIMENTOS m where m.i_tipos_proc = w_i_tipos_proc and i_competencias = w_i_competencias and i_processamentos = w_i_processamentos 
@@ -519,7 +515,9 @@ begin
 		    							
 		    		update tecbth_delivery.gp001_MOVIMENTOS as m set m.vlr_inf = m.vlr_inf + w_vlr_inf, m.vlr_calc = m.vlr_calc + w_vlr_calc where m.i_tipos_proc = w_i_tipos_proc and i_competencias = w_i_competencias 
 		    		and i_processamentos = w_i_processamentos and i_funcionarios = w_i_funcionarios and i_eventos = w_i_eventos and compoe_liq = w_compoe_liq and tipo_pd = w_tipo_pd;
-		    	
+		    	else
+					insert into tecbth_delivery.gp001_MOVIMENTOS(i_entidades,i_tipos_proc,i_competencias,i_processamentos,i_funcionarios,i_eventos,vlr_inf,vlr_calc,tipo_pd,compoe_liq,classif_evento,mov_resc)
+		    		values (w_i_entidades,w_i_tipos_proc,w_i_competencias,w_i_processamentos,w_i_funcionarios,w_i_eventos,w_vlr_inf,w_vlr_calc,w_tipo_pd,w_compoe_liq,w_classif_evento,w_mov_resc);
 		    	end if;
 		    	 
 			end if;
