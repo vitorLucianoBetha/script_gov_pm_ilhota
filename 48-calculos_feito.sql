@@ -252,6 +252,25 @@ end;
 
 -- INSERE OS CALCULOS DE RESCISÃO EFETIVAMENTE
 -- MUDAR ARQJOB PARA UNION ALL E COLOCAR ESTA TABELA tecbth_delivery.gp001_MOVIMENTOS
+
+CREATE TABLE tecbth_delivery.gp001_MOVIMENTOS (
+    i_entidades int NOT NULL,
+    i_tipos_proc smallint NOT NULL,
+    i_competencias date NOT NULL,
+    i_processamentos smallint NOT NULL,
+    i_funcionarios int NOT NULL,
+    i_eventos smallint NOT NULL,
+    vlr_inf numeric(12,2) NOT NULL,
+    vlr_calc numeric(12,2) NOT NULL,
+    tipo_pd char(1) NOT NULL,
+    compoe_liq char(1) NOT NULL,
+    classif_evento tinyint DEFAULT 0 NOT NULL,
+    mov_resc char(1) DEFAULT 'N' NOT NULL
+);
+CREATE INDEX idx_movimentos1 ON tecbth_delivery.gp001_MOVIMENTOS (i_entidades,i_funcionarios,classif_evento,i_competencias,i_tipos_proc);
+CREATE INDEX idx_movimentos2 ON tecbth_delivery.gp001_MOVIMENTOS (i_entidades,i_funcionarios,i_eventos,i_tipos_proc,i_competencias);
+CREATE INDEX idx_movimentos3 ON tecbth_delivery.gp001_MOVIMENTOS (i_entidades,i_funcionarios,i_eventos,i_competencias,i_tipos_proc);
+
 ROLLBACK;
 
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
