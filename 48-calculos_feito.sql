@@ -25,8 +25,6 @@ begin
 	declare w_i_processamentos smallint;
 	declare w_i_funcionarios integer;
 	declare w_i_eventos smallint;
-	declare w_tipo_pd char(1);
-	declare w_compoe_liq char(1);
 	declare w_classif_evento tinyint;
 	declare w_mov_resc char(1);
 	
@@ -185,23 +183,16 @@ begin
 			end if;			
 
 
-            select distinct i_eventos
+            select first i_eventos
 			into w_i_eventos 
  			from tecbth_delivery.evento_aux 
-			where evento  = w_cdVerba 
-			and retificacao = w_inRetificacao 
-			and	resc_mov = 'N' 
+			where evento  = w_cdVerba
 			and	i_entidades = w_i_entidades;
 
-			if w_tipo_pd not in ('D', 'P') then
-				select first tipo_pd,classif_evento 
-							into w_tipo_pd,w_classif_evento 
-						from bethadba.eventos  
-							where i_eventos = w_i_eventos;
-			end if;
-	
-
-
+			select first tipo_pd,classif_evento 
+				into w_tipo_pd,w_classif_evento 
+			from bethadba.eventos  
+			where i_eventos = w_i_eventos;
 
 			if w_vlr_inf = '0' then
 				set w_vlr_inf=0.0
