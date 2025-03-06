@@ -65,7 +65,7 @@ begin
 			cast(vlIntegral as decimal(12,2)) as w_vlIntegral,
 			if v.TpCategoria in ('D','P') then 'S' else 'N' endif as w_compoe_liq,
 			v.TpCategoria as w_tipo_pd
-		from tecbth_delivery.gp001_FICHAFINANCEIRA3 f
+		from tecbth_delivery.gp001_FICHAFINANCEIRA f
 		join tecbth_delivery.gp001_VERBA v on f.cdVerba = v.CdVerba
 		join tecbth_delivery.gp001_FichaFinanceiraHeaderCalculo ff on f.cdMatricula = ff.cdMatricula and f.dtCompetencia = ff.dtCompetencia and f.sqHabilitacao = ff.sqHabilitacao and f.tpCalculo = ff.tpCalculo
 		where f.sqHabilitacao = ff.sqHabilitacao
@@ -327,7 +327,7 @@ begin
 			cast(vlIntegral as decimal(12,2)) as w_vlIntegral,
 			if v.TpCategoria in ('D','P') then 'S' else 'N' endif as w_compoe_liq,
 			v.TpCategoria as w_tipo_pd
-		from tecbth_delivery.gp001_FICHAFINANCEIRA3 f
+		from tecbth_delivery.gp001_FICHAFINANCEIRA f
 		join tecbth_delivery.gp001_VERBA v on f.cdVerba = v.CdVerba
 		join tecbth_delivery.gp001_FichaFinanceiraHeaderCalculo ff on f.cdMatricula = ff.cdMatricula and f.dtCompetencia = ff.dtCompetencia and f.sqHabilitacao = ff.sqHabilitacao and f.tpCalculo = ff.tpCalculo
 		where f.tpCalculo in (1,2)
