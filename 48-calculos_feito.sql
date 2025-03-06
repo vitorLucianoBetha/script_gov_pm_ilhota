@@ -527,6 +527,7 @@ end;
 
 commit;
 
+update bethadba.dados_calc set dt_fechamento = dt_pagto where dt_fechamento is null;
 
 -- Atualiza composição líquidas dos eventos
 update bethadba.movimentos m 
