@@ -240,14 +240,21 @@ begin
 			set w_estado_civil=w_CdEstadoCivil
 		end if;
 
-		if w_i_entidades = 1 then
-			select first cdOcorrencia 
-			into w_grau_instrucao 
-			from gp001_eventofuncional 
-			where cdPessoa = w_cdPessoa and cdEvento = 1
+		
+		select first cdOcorrencia 
+		into w_grau_instrucao 
+		from gp001_eventofuncional 
+		where cdPessoa = w_cdPessoa;
+
+		if w_grau_instrucao = 11 then
+			set w_grau_instrucao=12
 		end if;
 
-		if w_grau_instrucao not in(1,2,3,4,5,6,7,8,9) then
+		if w_grau_instrucao = 12 then
+			set w_grau_instrucao=13
+		end if;
+
+		if w_grau_instrucao not in(1,2,3,4,5,6,7,8,9,10,11,12,13) then
 			set w_grau_instrucao=1
 		end if;
 
