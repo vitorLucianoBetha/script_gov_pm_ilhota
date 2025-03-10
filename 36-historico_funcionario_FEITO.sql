@@ -494,3 +494,47 @@ end;
 insert into bethadba.horarios_ponto (i_entidades,i_horarios_ponto,descricao,classificacao,tipo,minima_hora,jornada_diaria,tolerancia_alocacao,enviar_esocial)
 select 1,i_horarios,descricao,'N','F',entrada,1,1,'S'
  from bethadba.horarios
+
+
+--- INSERE CONTAS FALTANTES AS PESSOAS
+CREATE TABLE tecbth_delivery.gp001_HISTORICOBANCARIO (
+	CdMatricula int NOT NULL,
+	SqContrato smallint NOT NULL,
+	DtHistorico datetime NOT NULL,
+	NrBancoCC int NULL,
+	NrAgenciaCC int NULL,
+	NrContaCorrente varchar(12) NULL,
+	DgContaCorrente varchar(2) NULL,
+	TpContaCC int NULL,
+	tpPensao smallint NOT NULL,
+	cdBeneficiario smallint NOT NULL
+); 
+
+CALL bethadba.dbp_conn_gera(1, 2019, 300);
+CALL bethadba.pg_setoption('wait_for_commit','on');
+CALL bethadba.pg_habilitartriggers('off');
+call bethadba.pg_setoption('fire_triggers','off');
+COMMIT;
+
+insert into bethadba.pessoas_contas(i_pessoas,i_pessoas_contas,i_bancos,i_agencias,num_conta,tipo_conta,status) on existing skip
+select distinct 
+		(select first depois_1 
+		from tecbth_delivery.antes_depois 
+		where tipo = 'P' 
+		and antes_2 = f.CdPessoa) as pessoa,
+		isnull((select max(pc.i_pessoas_contas) + 1  from bethadba.pessoas_contas pc where pc.i_pessoas = pessoa),1) as pessoa_conta,
+		if not exists (select 1 from bethadba.bancos where i_bancos = h.NrBancoCC) then 800 else h.NrBancoCC endif as banco, 
+		h.NrAgenciaCC as agencia,
+		string(cast(trim(tecbth_delivery.fu_tirachars(h.NrContaCorrente,' .-,')) as decimal(15)))+string(trim(h.DgContaCorrente)) as num_conta,
+		case when h.tpContaCC in(0,3) then '1'
+				when h.tpContaCC in(2,13) then '2'
+				when h.tpContaCC in(23) then '3'
+				else '1'
+		end as tipoConta,
+		'A'
+from tecbth_delivery.gp001_HISTORICOBANCARIO h 
+join tecbth_delivery.gp001_FUNCIONARIO f on h.CdMatricula = f.cdMatricula
+where h.NrContaCorrente <> ''
+and not exists(select first 1 from bethadba.pessoas_contas pc where pc.i_pessoas = pessoa and pc.i_bancos = banco and pc.i_agencias = agencia and pc.num_conta = num_conta)
+and exists(select first 1 from bethadba.agencias a where a.i_bancos = banco and a.i_agencias = agencia)
+order by 1 asc;
