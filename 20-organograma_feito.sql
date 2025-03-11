@@ -8,19 +8,28 @@ COMMIT;
 
 if not exists (select 1 from sys.syscolumns where creator = current user  and tname = 'tecbth_delivery.gp001_LOTACAO' and cname = 'i_config_organ') then 
     alter table tecbth_delivery.gp001_LOTACAO add(i_config_organ integer null, nivel1 varchar(5) null, nivel2 varchar(5) null,nivel3 varchar(5) null, nivel4 varchar(5) null );
-end if
-;
+end if;
 
+-- PM
 update tecbth_delivery.gp001_LOTACAO 
 set nivel1 = substr(cdlotacao,1,2), 
     nivel2 = if trim(substr(cdlotacao,3,2)) = '' then 
                 '00' 
             else 
                 substr(cdlotacao,3,2) 
-            endif
-;
-commit
-;   
+            endif;
+commit;
+
+-- CM
+update tecbth_delivery.gp001_LOTACAO 
+set nivel1 = substr(cdlotacao,1,1), 
+    nivel2 = if trim(substr(cdlotacao,2,2)) = '' then 
+                '00' 
+            else 
+                substr(cdlotacao,2,2) 
+            endif;
+commit;   
+
 
 
 
@@ -54,7 +63,7 @@ begin
         set w_tipo=null;
         
         // *****  Converte tabela bethadba.organogramas
-         set w_i_config_organ= 1 ;
+        set w_i_config_organ= 1 ;
         Select sum(num_digitos) 
         into w_digitos 
         from bethadba.niveis_organ 
@@ -74,7 +83,7 @@ begin
         
         select max(i_niveis_organ) 
         into w_nivel_tipo 
-     from bethadba.niveis_organ 
+        from bethadba.niveis_organ 
         where i_config_organ = w_i_config_organ;
         
         if w_nivel = w_nivel_tipo then
@@ -89,6 +98,5 @@ begin
         values (w_i_config_organ,w_i_organogramas,null,null,w_descricao,w_sigla,w_nivel,w_tipo,null,null,null,null,null);
         
     end for;
-end
-;
+end;
 
