@@ -1,7 +1,6 @@
 if  exists (select 1 from sys.sysprocedure where creator = (select user_id from sys.sysuserperms where user_name = current user) and proc_name = 'cnv_sindicatos') then
 	drop procedure cnv_sindicatos;
-end if
-;
+end if;
 
 begin
 	// *****  Tabela bethadba.pessoas
@@ -61,6 +60,13 @@ begin
 		else
 			set w_i_bairros=w_i_bairros
 		end if;
+
+		if not exists(select first 1 from bethadba.ruas r where r.nome like w_nome_rua and r.i_cidades = w_i_cidades) then
+			set w_i_ruas = (select max(i_ruas) + 1 from bethadba.ruas);
+			insert into bethadba.ruas(i_ruas,i_cidades,nome,tipo,extensao) on existing skip values(w_i_ruas, w_i_cidades, w_nome_rua, 67, 0);
+		else
+			set w_i_ruas = (select i_ruas from bethadba.ruas r where r.nome like w_nome_rua and r.i_cidades = w_i_cidades);
+		end if;
 		
 	
 		if w_CdLogradouro = 0 then
@@ -105,8 +111,7 @@ begin
 		insert into tecbth_delivery.antes_depois 
 		values('S',w_i_entidades,w_cdSindicato,null,null,w_i_pessoas,null,null,null,null);
 	end for;
-end
-;
+end;
 
 ------- CADASTRO DE INSTITUIÇÃO DE ENSINO PARA ESTAGIARIO
 
