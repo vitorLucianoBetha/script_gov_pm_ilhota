@@ -44,6 +44,15 @@ end;
 
 -- BTHSC-59216 - ajustes de niveis - André
 
+-- CM ABAIXO
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(1,1,'PM',1,'.',1);
+
+insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
+values(1,2,'DEPTO',2,'.',3);
+
+-- FIM CM
+
 insert into bethadba.niveis_organ(i_config_organ,i_niveis_organ,descricao,num_digitos,separador_nivel,tot_digitos)on existing skip 
 values(1,1,'PM',2,'.',2);
 
