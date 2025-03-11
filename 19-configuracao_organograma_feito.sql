@@ -37,7 +37,7 @@ begin
 		values (w_i_config_organ,null,w_descricao);		
 		
 		insert into tecbth_delivery.antes_depois 
-		values('O',w_i_entidades,w_cdOrganograma,null,null,w_i_config_organ,null,null,null,null);
+		values('O',w_i_entidades,w_cdOrganograma,null,null,w_i_config_organ,null,null,null,null,null,null,null,null);
 		
 	end for;
 end;
