@@ -63,7 +63,7 @@ begin
 			cast(vlMensal as decimal(12,2)) as w_vlr_calc,
 			cast(vlAuxiliar as decimal(12,2)) as w_vlAuxiliar,
 			cast(vlIntegral as decimal(12,2)) as w_vlIntegral,
-			if v.TpCategoria in ('D','P') then 'S' else 'N' endif as w_compoe_liq,
+			if v.TpCategoria in ('D','P','V') then 'S' else 'N' endif as w_compoe_liq,
 			v.TpCategoria as w_tipo_pd
 		from tecbth_delivery.gp001_FICHAFINANCEIRA f
 		join tecbth_delivery.gp001_VERBA v on f.cdVerba = v.CdVerba
@@ -325,7 +325,7 @@ begin
 			cast(vlMensal as decimal(12,2)) as w_vlr_calc,
 			cast(vlAuxiliar as decimal(12,2)) as w_vlAuxiliar,
 			cast(vlIntegral as decimal(12,2)) as w_vlIntegral,
-			if v.TpCategoria in ('D','P') then 'S' else 'N' endif as w_compoe_liq,
+			if v.TpCategoria in ('D','P','V') then 'S' else 'N' endif as w_compoe_liq,
 			v.TpCategoria as w_tipo_pd
 		from tecbth_delivery.gp001_FICHAFINANCEIRA f
 		join tecbth_delivery.gp001_VERBA v on f.cdVerba = v.CdVerba
