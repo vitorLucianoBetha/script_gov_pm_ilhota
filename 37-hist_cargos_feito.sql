@@ -1,3 +1,88 @@
+-- UTILIZADO PARA TRATAR CARGOS QUE VIERAM DE MIGRAÇÃO DE DADOS PARA O GOV 
+-- BTHSC-170309 Bug em Matrículas | Cargos errados
+/*WITH CargosSequencia AS (
+    SELECT 1 as w_i_entidades,
+        cdMatricula as w_cdMatricula,
+		SqContrato as w_SqContrato,
+		dtAdmissao as w_dtAdmissao,        
+        dtCompetencia AS data_inicial,
+		8 as w_i_motivos_altcar,
+		cdCargo,
+		null as w_i_concursos,
+        LEAD(dtCompetencia) OVER (PARTITION BY cdMatricula ORDER BY dtCompetencia) AS proxima_data,
+        LEAD(cdCargo) OVER (PARTITION BY cdMatricula ORDER BY dtCompetencia) AS proximo_cargo,
+		2 as w_configferias,
+		(select dtRescisao from FUNCIONARIO where FUNCIONARIO.cdMatricula = FichaFinanceiraHeader.cdMatricula) as w_dtRescisao
+    FROM FichaFinanceiraHeader
+),
+MudancasDeCargo AS (
+    SELECT w_i_entidades,
+        w_cdMatricula,
+		w_SqContrato,
+		w_dtAdmissao,
+		data_inicial,
+		w_i_motivos_altcar,
+        cdCargo,
+		w_i_concursos,
+		w_configferias,
+		w_dtRescisao,
+        -- Se o código do cargo muda, a data final é o dia anterior da próxima data
+        CASE 
+            WHEN cdCargo <> proximo_cargo THEN DATEADD(DAY, -1, proxima_data)
+            ELSE NULL
+        END AS data_final,
+        -- Flag para marcar início de novo período
+        CASE 
+            WHEN cdCargo <> LAG(cdCargo) OVER (PARTITION BY w_cdMatricula ORDER BY data_inicial) 
+                 OR LAG(cdCargo) OVER (PARTITION BY w_cdMatricula ORDER BY data_inicial) IS NULL 
+            THEN 1 ELSE 0 
+        END AS novo_periodo
+    FROM CargosSequencia
+),
+Blocos AS (
+    SELECT *,
+        SUM(novo_periodo) OVER (PARTITION BY w_cdMatricula ORDER BY data_inicial ROWS UNBOUNDED PRECEDING) AS grupo
+    FROM MudancasDeCargo
+),
+Agrupado AS (
+    SELECT w_i_entidades,
+        w_cdMatricula,
+		w_SqContrato,
+		w_dtAdmissao,
+		w_i_motivos_altcar,
+		MIN(data_inicial) AS data_inicial,
+        cdCargo,        
+        MAX(COALESCE(data_final, data_inicial)) AS data_final,
+		w_i_concursos,
+		MIN(data_inicial) AS w_dt_posse,
+		w_configferias,
+		w_dtRescisao
+    FROM Blocos
+    GROUP BY w_i_entidades, w_cdMatricula, w_SqContrato, w_dtAdmissao, w_i_motivos_altcar, cdCargo, w_i_concursos, w_configferias, w_dtRescisao, grupo
+)
+SELECT * FROM Agrupado
+where w_cdMatricula = 36218
+ORDER BY w_cdMatricula, data_inicial;
+-- OBS SÓ FUNCIONA NO SQL SERVER PARA ISSO FOI CRIADA UMA TABELA NOVA E AJUSTADO NO SCRIPT ABAIXO
+
+CREATE TABLE tecbth_delivery.gp001_HISTORICOCARGOAux (
+	w_i_entidades integer NULL,
+	w_cdMatricula varchar(200) NULL,
+	w_SqContrato varchar(1) NULL,
+	w_dtAdmissao date NULL,
+	w_i_motivos_altcar integer NULL,
+	data_inicial datetime NULL,
+	cdCargo integer NULL,
+	data_final date NULL,
+	w_i_concursos integer NULL,
+	w_dt_posse date NULL,
+	w_configferias integer NULL,
+	w_dtRescisao date NULL
+);
+-- TABELA CRIADA PARA TRAZER OS DADOS E AJUSTAR NO SCRIPT ABAIXO
+*/
+
+
 ROLLBACK;
 
 CALL bethadba.dbp_conn_gera(1, 2019, 300);
