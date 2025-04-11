@@ -1,12 +1,14 @@
 -- UTILIZADO PARA TRATAR CARGOS QUE VIERAM DE MIGRAÇÃO DE DADOS PARA O GOV 
 -- BTHSC-170309 Bug em Matrículas | Cargos errados
-/*WITH CargosSequencia AS (
+/*
+WITH CargosSequencia AS (
     SELECT 1 as w_i_entidades,
         cdMatricula as w_cdMatricula,
 		SqContrato as w_SqContrato,
+		tpRegistro,
 		dtAdmissao as w_dtAdmissao,        
         dtCompetencia AS data_inicial,
-		8 as w_i_motivos_altcar,
+		1 as w_i_motivos_altcar,
 		cdCargo,
 		null as w_i_concursos,
         LEAD(dtCompetencia) OVER (PARTITION BY cdMatricula ORDER BY dtCompetencia) AS proxima_data,
@@ -19,6 +21,7 @@ MudancasDeCargo AS (
     SELECT w_i_entidades,
         w_cdMatricula,
 		w_SqContrato,
+		tpRegistro,
 		w_dtAdmissao,
 		data_inicial,
 		w_i_motivos_altcar,
@@ -33,21 +36,22 @@ MudancasDeCargo AS (
         END AS data_final,
         -- Flag para marcar início de novo período
         CASE 
-            WHEN cdCargo <> LAG(cdCargo) OVER (PARTITION BY w_cdMatricula ORDER BY data_inicial) 
-                 OR LAG(cdCargo) OVER (PARTITION BY w_cdMatricula ORDER BY data_inicial) IS NULL 
+            WHEN cdCargo <> LAG(cdCargo) OVER (PARTITION BY w_cdMatricula, tpRegistro ORDER BY data_inicial) 
+                 OR LAG(cdCargo) OVER (PARTITION BY w_cdMatricula, tpRegistro ORDER BY data_inicial) IS NULL 
             THEN 1 ELSE 0 
         END AS novo_periodo
     FROM CargosSequencia
 ),
 Blocos AS (
     SELECT *,
-        SUM(novo_periodo) OVER (PARTITION BY w_cdMatricula ORDER BY data_inicial ROWS UNBOUNDED PRECEDING) AS grupo
+        SUM(novo_periodo) OVER (PARTITION BY w_cdMatricula, tpRegistro ORDER BY data_inicial ROWS UNBOUNDED PRECEDING) AS grupo
     FROM MudancasDeCargo
 ),
 Agrupado AS (
     SELECT w_i_entidades,
         w_cdMatricula,
 		w_SqContrato,
+		tpRegistro,
 		w_dtAdmissao,
 		w_i_motivos_altcar,
 		MIN(data_inicial) AS data_inicial,
@@ -58,10 +62,9 @@ Agrupado AS (
 		w_configferias,
 		w_dtRescisao
     FROM Blocos
-    GROUP BY w_i_entidades, w_cdMatricula, w_SqContrato, w_dtAdmissao, w_i_motivos_altcar, cdCargo, w_i_concursos, w_configferias, w_dtRescisao, grupo
+    GROUP BY w_i_entidades, w_cdMatricula, w_SqContrato, tpRegistro, w_dtAdmissao, w_i_motivos_altcar, cdCargo, w_i_concursos, w_configferias, w_dtRescisao, grupo
 )
 SELECT * FROM Agrupado
-where w_cdMatricula = 36218
 ORDER BY w_cdMatricula, data_inicial;
 -- OBS SÓ FUNCIONA NO SQL SERVER PARA ISSO FOI CRIADA UMA TABELA NOVA E AJUSTADO NO SCRIPT ABAIXO
 
@@ -80,6 +83,23 @@ CREATE TABLE tecbth_delivery.gp001_HISTORICOCARGOAux (
 	w_dtRescisao date NULL
 );
 -- TABELA CRIADA PARA TRAZER OS DADOS E AJUSTAR NO SCRIPT ABAIXO
+select 1 as w_i_entidades,
+			Funcionario.cdMatricula as w_cdMatricula,
+			Funcionario.SqContrato as w_SqContrato,
+			date(w_dtAdmissao) as w_dtAdmissao,
+            data_inicial as w_DtHistorico,
+            w_i_motivos_altcar,
+            if HistoricoCargo.cdCargo is null or HistoricoCargo.cdCargo = 0 then Funcionario.CdCargo else HistoricoCargo.cdCargo endif as w_i_cargos,
+            HistoricoCargo.data_final w_dtValidade,
+            cast(HistoricoCargo.w_i_concursos as integer) as w_i_concursos,
+            w_dt_posse,
+            Funcionario.CdTipoFerias,
+            Funcionario.dtRescisao as w_dtRescisao
+        from tecbth_delivery.GP001_Funcionario as Funcionario
+        left outer join tecbth_delivery.GP001_HistoricoCargoAux AS HistoricoCargo on (Funcionario.CdMatricula = HistoricoCargo.w_cdMatricula and 
+                                                                                     Funcionario.SqContrato = HistoricoCargo.w_SqContrato)	 where w_dtAdmissao is not null
+		order by 1,2,3,5,8 asc
+SQL utilizado no script abaixo		
 */
 
 
